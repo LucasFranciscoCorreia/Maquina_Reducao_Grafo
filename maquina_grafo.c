@@ -84,17 +84,29 @@ char* acha_argumento(char* entrada, int *ini, int *end){
         (*end)--;
     }
     (*end)++;
-    char *cpy = calloc((*end)-(*ini)+1,sizeof(char));
-    int i = 0;
-    if(entrada[*ini] == '\0'){
-        (*ini)++;
-        cpy[0] = '\0';
-        return cpy;
+    //char *cpy = calloc((*end)-(*ini)+1,sizeof(char));
+    char *cpy;
+    //int i = 0;
+    //if(entrada[*ini] == '\0'){
+    //    (*ini)++;
+    //    cpy[0] = '\0';
+    //    return cpy;
+    //}
+    //for(;*ini < *end;(*ini)++){
+    //    cpy[i++] = entrada[*ini];
+    //}
+    //cpy[i] = '\0';
+    if(*end - *ini == 1){
+        cpy = calloc(2,sizeof(char));
+        cpy[0] = entrada[*ini];
+        if(entrada[*ini] == '\0')
+            cpy[0] = '\0';
+       // cpy[1] = '\0';
+    }else{
+        cpy = entrada+(*ini)+1;
+        entrada[*end-1] = '\0';
     }
-    for(;*ini < *end;(*ini)++){
-        cpy[i++] = entrada[*ini];
-    }
-    cpy[i] = '\0';
+    *ini = *end;
     return cpy;
 }
 
@@ -107,8 +119,8 @@ char* remove_parenteses(char* entrada){
 
 struct Argumento* transformar_entrada_grafo(char* entrada){
     struct Argumento *grafo = calloc(1, sizeof(struct Argumento));
-    ini = 0;
-    end = 0;
+    int ini = 0;
+    int end = 0;
     char* argumento = acha_argumento(entrada, &ini, &end);
     grafo->tipo = argumento;
     while(1){
@@ -143,10 +155,7 @@ void resolver_argumentos(){
     while(pilha){
         struct Argumento *aux = pilha;
         char *nova_entrada = aux->tipo;
-        if(nova_entrada[0] == '(')
-            nova_entrada = remove_parenteses(nova_entrada);
         struct Argumento *dir = transformar_entrada_grafo(nova_entrada);
-        free(aux->tipo);
         (*aux).tipo = (*dir).tipo;
         (*aux).esquerda = (*dir).esquerda;
         (*aux).direita = (*dir).direita;
@@ -171,6 +180,8 @@ void imprime_arvore(struct Celula* no){
         imprime_arvore(no->direita);
     printf("%c", no->tipo);
 }
+
+struct Pilha *p;
 
 struct Pilha* buscar_reduz(struct Celula *grafo){
     struct Pilha *stack = calloc(1, sizeof(struct Pilha));
@@ -227,8 +238,9 @@ void reduz_S(struct Pilha *stack){
 void start(){
     int boolean = 1;
     long long time = clock();
+    int i = 0;
     while(boolean){
-        struct Pilha *p = buscar_reduz(raiz);
+        p = buscar_reduz(raiz);
         struct Celula *aux = p->cell;
         switch (aux->tipo){
             case 'K':
@@ -245,17 +257,17 @@ void start(){
                 }
                 reduz_S(p);
                 break;
-            default:
-
-                break;
         }
+        i++;
         //imprime_arvore(raiz);
-       // printf("\n");
+        // printf("\n");
     }
     imprime_arvore(raiz);
     printf("\n");
-    printf("%d segundos de execucao\n", clock()/CLOCKS_PER_SEC);
-    printf("%d segundos de reducao de grafo", (clock()-time)/CLOCKS_PER_SEC);
+    double tempo = CLOCKS_PER_SEC;
+    printf("%d iterações realizadas\n", i);
+    printf("%lf segundos de execucao\n", clock()/tempo);
+    printf("%lf segundos de reducao de grafo", (clock()-time)/tempo);
 }
 
 int main(void)
@@ -266,5 +278,3 @@ int main(void)
     raiz = converter_para_celula(res);
     start();
 }
-
-
