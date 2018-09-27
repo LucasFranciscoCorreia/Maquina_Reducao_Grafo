@@ -205,6 +205,7 @@ void buscar_reduz(struct Celula *grafo){
     }
 }
 
+//Kab = a
 void reduz_K(){
     pop();
     struct Celula *a = p->cell->direita;
@@ -219,6 +220,7 @@ void reduz_K(){
     }
 }
 
+//Sabc = ac(bc)
 void reduz_S(){
     pop();
     struct Celula *a = p->cell->direita;
@@ -245,7 +247,161 @@ void reduz_S(){
     }
 }
 
-void start(){
+//Ia = a
+void reduz_I(){
+    pop();
+    struct Celula *a = p->cell->direita;
+    pop();
+    struct Pilha *pai = p;
+    if(pai){
+        p->cell->esquerda = a;
+    }else{
+        raiz = a;
+        push(raiz);
+    }
+}
+
+//Babc = a(bc)
+void reduz_B(){
+    pop();
+    struct Celula *a = p->cell->direita;
+    pop();
+    struct Celula *b = p->cell->direita;
+    pop();
+    struct Celula *c = p->cell->direita;
+    pop();
+    struct Pilha *pai = p;
+    struct Celula *app1 = alocar_celula('@');
+    struct Celula *app2 = alocar_celula('@');
+    app1->esquerda = a;
+    app1->direita = app2;
+    app2->esquerda = b;
+    app2->direita = c;
+    if(pai){
+        pai->cell->esquerda = app1;
+    }else{
+        raiz = app1;
+        push(raiz);
+    }
+}
+
+//Cabc = acb
+void reduz_C(){
+    pop();
+    struct Celula *a = p->cell->direita;
+    pop();
+    struct Celula *b = p->cell->direita;
+    pop();
+    struct Celula *c = p->cell->direita;
+    pop();
+    struct Pilha *pai = p;
+    struct Celula *app1 = alocar_celula('@');
+    struct Celula *app2 = alocar_celula('@');
+    app1->esquerda = a;
+    app1->direita = c;
+    app2->esquerda = app1;
+    app2->direita = b;
+    if(pai){
+        pai->cell->esquerda = app2;
+    }else{
+        raiz = app2;
+        push(raiz);
+    }
+}
+
+//Dabcd = a(bd)(cd)
+void reduz_D(){
+    pop();
+    struct Celula *a = p->cell->direita;
+    pop();
+    struct Celula *b = p->cell->direita;
+    pop();
+    struct Celula *c = p->cell->direita;
+    pop();
+    struct Celula *d = p->cell->direita;
+    pop();
+    struct Pilha *pai = p;
+    struct Celula *app1 = alocar_celula('@');
+    struct Celula *app2 = alocar_celula('@');
+    struct Celula *app3 = alocar_celula('@');
+    struct Celula *app4 = alocar_celula('@');
+    app1->esquerda = a;
+    app1->direita = app2;
+    app2->esquerda = b;
+    app2->direita = d;
+    app3->esquerda = app1;
+    app3->direita = app4;
+    app4->esquerda = c;
+    app4->direita = d;
+    if(pai){
+        pai->cell->esquerda = app3;
+    }else{
+        raiz = app3;
+        push(raiz);
+    }
+}
+
+//Eabcd = ab(cd)
+void reduz_E(){
+    pop();
+    struct Celula *a = p->cell->direita;
+    pop();
+    struct Celula *b = p->cell->direita;
+    pop();
+    struct Celula *c = p->cell->direita;
+    pop();
+    struct Celula *d = p->cell->direita;
+    pop();
+    struct Pilha *pai = p;
+    struct Celula *app1 = alocar_celula('@');
+    struct Celula *app2 = alocar_celula('@');
+    struct Celula *app3 = alocar_celula('@');
+    app1->esquerda = a;
+    app1->direita = b;
+    app2->esquerda = app1;
+    app2->direita = app3;
+    app3->esquerda = c;
+    app3->direita = d;
+    if(pai){
+        pai->cell->esquerda = app2;
+    }else{
+        raiz = app2;
+        push(raiz);
+    }
+}
+//Fabcd = a(bd)c
+void reduz_F(){
+    pop();
+    struct Celula *a = p->cell->direita;
+    pop();
+    struct Celula *b = p->cell->direita;
+    pop();
+    struct Celula *c = p->cell->direita;
+    pop();
+    struct Celula *d = p->cell->direita;
+    pop();
+    struct Pilha *pai = p;
+    struct Celula *app1 = alocar_celula('@');
+    struct Celula *app2 = alocar_celula('@');
+    struct Celula *app3 = alocar_celula('@');
+    app1->esquerda = a;
+    app1->direita = app2;
+    app2->esquerda = b;
+    app2->direita = d;
+    app3->esquerda = app1;
+    app3->direita = c;
+
+    if(pai){
+        pai->cell->esquerda = app3;
+    }else{
+        raiz = app3;
+        push(raiz);
+    }
+}
+
+void execucao(){
+    double tempo = CLOCKS_PER_SEC;
+    long long time = clock();
     buscar_reduz(raiz);
     int i = 0;
     while(raiz->tipo == '@'){
@@ -256,24 +412,43 @@ void start(){
             case 'S':
                 reduz_S();
                 break;
+            case 'I':
+                reduz_I();
+                break;
+            case 'B':
+                reduz_B();
+                break;
+            case 'C':
+                reduz_C();
+                break;
+            case 'D':
+                reduz_D();
+                break;
+            case 'E':
+                reduz_E();
+                break;
+            case 'F':
+                reduz_F();
+                break;
         }
         buscar_reduz(p->cell->esquerda);
         i++;
     }
+    imprime_arvore(raiz);
     printf("%d iteracoes realizadas\n", i);
+    printf("\n%lf segundos de reducao de grafo\n",(clock()-time)/tempo);
+    printf("%lf segundos de execucao\n", clock()/tempo);
 }
-
-int main(void)
-{
-    double tempo = CLOCKS_PER_SEC;
+void compilacao(){
     alocar_memoria();
     res = transformar_entrada_grafo(entrada);
     resolver_argumentos();
     raiz = converter_para_celula(res);
+    double tempo = CLOCKS_PER_SEC;
     printf("%lf segundos para realizacao do grafo\n", clock()/tempo);
-    long long time = clock();
-    start();
-    imprime_arvore(raiz);
-    printf("\n%lf segundos de reducao de grafo\n",(clock()-time)/tempo);
-    printf("%lf segundos de execucao\n", clock()/tempo);
+}
+int main(void)
+{
+    compilacao();
+    execucao();
 }
