@@ -101,7 +101,7 @@ char* acha_argumento(char* entrada, int *ini, int *end){
         cpy[0] = entrada[*ini];
         if(entrada[*ini] == '\0')
             cpy[0] = '\0';
-       // cpy[1] = '\0';
+        // cpy[1] = '\0';
     }else{
         cpy = entrada+(*ini)+1;
         entrada[*end-1] = '\0';
@@ -183,98 +183,97 @@ void imprime_arvore(struct Celula* no){
 
 struct Pilha *p;
 
-struct Pilha* buscar_reduz(struct Celula *grafo){
-    struct Pilha *stack = calloc(1, sizeof(struct Pilha));
-    stack->cell = grafo;
-    grafo = grafo->esquerda;
+void push(struct Celula *elem){
+    struct Pilha *aux = calloc(1, sizeof(struct Pilha));
+    aux->cell = elem;
+    aux->next = p;
+    p = aux;
+}
+void pop(){
+    if(p){
+        struct Pilha *aux = p->next;
+        p->next = 0;
+        free(p);
+        p = aux;
+    }
+}
+
+void buscar_reduz(struct Celula *grafo){
     while(grafo){
-        struct Pilha *aux = calloc(1, sizeof(struct Pilha));
-        aux->cell = grafo;
-        aux->next = stack;
-        stack = aux;
+        push(grafo);
         grafo = grafo->esquerda;
     }
-
-    return stack;
 }
 
-void reduz_K(struct Pilha *stack){
-    struct Celula *a = stack->next->cell->direita;
-    struct Celula *b = stack->next->next->cell->direita;
-    struct Celula *pai = 0;
-    if(stack->next->next->next)
-        pai = stack->next->next->next->cell;
+void reduz_K(){
+    pop();
+    struct Celula *a = p->cell->direita;
+    pop();
+    pop();
+    struct Pilha *pai = p;
     if(pai)
-        pai->esquerda = a;
+        pai->cell->esquerda = a;
     else {
         raiz = a;
+        push(raiz);
     }
 }
 
-void reduz_S(struct Pilha *stack){
-    struct Celula *a = stack->next->cell->direita;
-    struct Celula *b = stack->next->next->cell->direita;
-    struct Celula *c = stack->next->next->next->cell->direita;
-    struct Celula *pai = 0;
+void reduz_S(){
+    pop();
+    struct Celula *a = p->cell->direita;
+    pop();
+    struct Celula *b = p->cell->direita;
+    pop();
+    struct Celula *c = p->cell->direita;
+    pop();
+    struct Pilha *pai = p;
     struct Celula *app1, *app2, *app3;
     app1 = alocar_celula('@');
     app2 = alocar_celula('@');
     app3 = alocar_celula('@');
     app1->esquerda = app2;
-    app1->direita = app3;
     app2->esquerda = a;
-    app2->direita = c;
     app3->esquerda = b;
-    app3->direita = c;
-    if(stack->next->next->next->next)
-        pai = stack->next->next->next->next->cell;
+    app1->direita = app3;
+    app2->direita = app3->direita = c;
     if(pai){
-        pai->esquerda = app1;
+        pai->cell->esquerda = app1;
     }else{
         raiz = app1;
+        push(raiz);
     }
 }
 
 void start(){
-    int boolean = 1;
-    long long time = clock();
+    buscar_reduz(raiz);
     int i = 0;
-    while(boolean){
-        p = buscar_reduz(raiz);
-        struct Celula *aux = p->cell;
-        switch (aux->tipo){
+    while(raiz->tipo == '@'){
+        switch (p->cell->tipo){
             case 'K':
-                if(!p->next || !p->next->next) {
-                    boolean = !boolean;
-                    break;
-                }
-                reduz_K(p);
+                reduz_K();
                 break;
             case 'S':
-                if(!p->next || !p->next->next || !p->next->next->next) {
-                    boolean = !boolean;
-                    break;
-                }
-                reduz_S(p);
+                reduz_S();
                 break;
         }
+        buscar_reduz(p->cell->esquerda);
         i++;
-        //imprime_arvore(raiz);
-        // printf("\n");
     }
-    imprime_arvore(raiz);
-    printf("\n");
-    double tempo = CLOCKS_PER_SEC;
-    printf("%d iterações realizadas\n", i);
-    printf("%lf segundos de execucao\n", clock()/tempo);
-    printf("%lf segundos de reducao de grafo", (clock()-time)/tempo);
+    printf("%d iteracoes realizadas\n", i);
 }
 
 int main(void)
 {
+    double tempo = CLOCKS_PER_SEC;
     alocar_memoria();
     res = transformar_entrada_grafo(entrada);
     resolver_argumentos();
     raiz = converter_para_celula(res);
+    printf("%lf segundos para realizacao do grafo\n", clock()/tempo);
+    long long time = clock();
     start();
+    imprime_arvore(raiz);
+    printf("\n%lf segundos de reducao de grafo\n",(clock()-time)/tempo);
+    printf("%lf segundos de execucao\n", clock()/tempo);
 }
