@@ -4,7 +4,7 @@
 #include <time.h>
 #include <string.h>
 
-#define TAM 1000000
+#define TAM 10000000
 #define TAM_STACK 5000
 #define TAM_STRING 160000
 
@@ -42,7 +42,6 @@ int garbage_calls = 0;
 
 void alocar_memoria(){
     heap = (struct Celula*) calloc(TAM, sizeof(struct Celula));
-
     heap2 = (struct Celula*) calloc(TAM,sizeof(struct Celula));
     int i;
     for(i = 0; i < TAM-1;i++) {
@@ -159,7 +158,6 @@ void scan(){
 }
 
 void mark_scan(){
-    struct Pilha *aux = redex;
     mark(raiz);
     scan();
 }
@@ -253,16 +251,15 @@ void garbage_collection(int type){
     Fib x => if x < 2 than 2, else Fib(x-2) + Fib(x-1)
 */
 //Fib1
-//char entrada[TAM_STRING] = "S(K(SII))(S(S(KS)K)(K(SII)))(S(K(S(S(S(KI)(S(S(K<)I)(K2)))I)))(S(S(KS)(S(K(S(K+)))(S(S(KS)(S(KK)I))(K(S(S(K-)I)(K2))))))(S(S(KS)(S(KK)I))(K(S(S(K-)I)(K1))))))X\0";
+// char entrada[TAM_STRING] = "S(K(SII))(S(S(KS)K)(K(SII)))(S(K(S(S(S(KI)(S(S(K<)I)(K2)))I)))(S(S(KS)(S(K(S(K+)))(S(S(KS)(S(KK)I))(K(S(S(K-)I)(K2))))))(S(S(KS)(S(KK)I))(K(S(S(K-)I)(K1))))))X\0";
 //Fib2
-char entrada[TAM_STRING] = "S(K(SII))(S(S(KS)K)(K(SII)))(S(K(S(S(S(S(K<)I)(K2))I)))(S(S(KS)(S(K(S(K+)))(S(S(KS)(S(KK)I))(K(S(S(K-)I)(K2))))))(S(S(KS)(S(KK)I))(K(S(S(K-)I)(K1))))))X\0";
+//char entrada[TAM_STRING] = "S(K(SII))(S(S(KS)K)(K(SII)))(S(K(S(S(S(S(K<)I)(K2))I)))(S(S(KS)(S(K(S(K+)))(S(S(KS)(S(KK)I))(K(S(S(K-)I)(K2))))))(S(S(KS)(S(KK)I))(K(S(S(K-)I)(K1))))))X\0";
 //char entrada[TAM_STRING] = "H(T(T(T((:1(:2(:3(:4(:5(:6[]))))))))))\0";
-//char entrada[TAM_STRING] = "M(S(K(SII))(S(S(KS)K)(K(SII)))(S(K(S(S(S(S(K<)I)(K2))I)))(S(S(KS)(S(K(S(K+)))(S(S(KS)(S(KK)I))(K(S(S(K-)I)(K2))))))(S(S(KS)(S(KK)I))(K(S(S(K-)I)(K1)))))))(:0(:1(:2(:3(:4(:5(:6(:7(:8(:9[]))))))))))\0";
+char entrada[TAM_STRING] = "M(S(K(SII))(S(S(KS)K)(K(SII)))(S(K(S(S(S(S(K<)I)(K2))I)))(S(S(KS)(S(K(S(K+)))(S(S(KS)(S(KK)I))(K(S(S(K-)I)(K2))))))(S(S(KS)(S(KK)I))(K(S(S(K-)I)(K1)))))))(:21(:22(:23(:24(:25(:26(:27(:28(:29(:30[]))))))))))\0";
 //char lista[TAM_STRING] = "(:0(:1(:2(:3(:4(:5(:6(:7(:8(:9[]))))))))))";
 //char lista[TAM_STRING] = "(:1(:2(:3(:4(:5(:6[]))))))\0";
 //char lista = "[3*8, 7*(5+2), aaa, (8/4)**(2+1), (8/4)**(2+1), bbb]";
-
-unsigned int X = 20;
+unsigned int X = 28;
 int pcont = 0;
 
 void addPilha(struct Argumento *elem){
@@ -350,10 +347,12 @@ void resolver_argumentos(){
     while(pilha->cell){
         struct Stack *aux = pilha;
         char *nova_entrada = aux->cell->tipo;
-        struct Argumento *dir = transformar_entrada_grafo(nova_entrada);
-        (*aux).cell->tipo = (*dir).tipo;
-        (*aux).cell->esquerda = (*dir).esquerda;
-        (*aux).cell->direita = (*dir).direita;
+        if(*nova_entrada != ':') {
+            struct Argumento *dir = transformar_entrada_grafo(nova_entrada);
+            (*aux).cell->tipo = (*dir).tipo;
+            (*aux).cell->esquerda = (*dir).esquerda;
+            (*aux).cell->direita = (*dir).direita;
+        }
         removePilha(aux);
     }
 }
@@ -448,19 +447,17 @@ struct Celula* pegar_subgrafo(int tipo){
 struct Celula* transformar_lista_grafo(char *lista){
     struct Celula* raiz = alocar_celula(-25);
     lista++;
-    raiz->esquerda = pegar_subgrafo((*lista)-48);
-//    raiz->esquerda = alocar_celula((*lista)-47);
-    lista++;
+    int res = 0;
+    do{
+        res = res*10 + ((*lista)-48);
+        lista++;
+    }while(*lista != '(' && *lista != '[');
+    raiz->esquerda = alocar_celula(res);
     if(*lista == '('){
         raiz->direita = transformar_lista_grafo(lista+1);
     }else{
         raiz->direita = alocar_celula(-26);
     }
-    return raiz;
-}
-
-struct Celula *gerar_grafo_lista(char* lista){
-    struct Celula *raiz = transformar_lista_grafo(lista);
     return raiz;
 }
 
@@ -538,7 +535,7 @@ struct Celula* converter_para_celula(struct Argumento *res){
             grafo = alocar_celula(X);
             break;
         case ':':
-            grafo = gerar_grafo_lista(tipo);
+            grafo = transformar_lista_grafo(tipo);
             break;
         default:
             grafo = alocar_celula(*tipo-48);
@@ -581,13 +578,16 @@ struct Celula* converter_para_celula(struct Argumento *res){
  * ~0       =>'\0'
  */
 
-void imprime_arvore(struct Celula* no, char lista){
+void imprime_arvore(struct Celula* no){
     static int deph = 0;
+    static int lista = 0;
+    if(deph == 0 && no->tipo == -25)
+        lista = 1;
     if(lista && no->tipo == -25)
         printf("[");
     if(no->esquerda) {
         deph++;
-        imprime_arvore(no->esquerda, lista);
+        imprime_arvore(no->esquerda);
     }
     switch (no->tipo){
         case -1:
@@ -678,46 +678,14 @@ void imprime_arvore(struct Celula* no, char lista){
     //printf("%d\n", no->tipo);
     if(no->direita) {
         deph++;
-        imprime_arvore(no->direita,lista);
+        imprime_arvore(no->direita);
         if(lista)
             printf("]");
         else
             printf(")");
     }
-}
-
-int imprime_lista(struct Celula *aux){
-    if(aux->esquerda)
-        imprime_lista(aux->esquerda);
-    switch (aux->tipo){
-        case 1:
-            printf("3*8");
-            break;
-        case 2:
-            printf("7*(5+2)");
-            break;
-        case 3:
-            printf("aaa");
-            break;
-        case 4:
-            printf("(8/4)**(2+1)");
-            break;
-        case 5:
-            printf("(8/4)**(2+1)");
-            break;
-        case 6:
-            printf("bbb");
-            break;
-        default:
-            if(aux->direita->tipo != -26)
-                printf(",");
-            else
-                return 0;
-    }
-    if(aux->direita)
-        imprime_lista(aux->direita);
-
-    return 0;
+    if(deph == 0)
+        lista = 0;
 }
 
 void push(struct Celula *elem){
@@ -1247,46 +1215,50 @@ void reduz_Tl(){
 }
 
 struct Celula* reduz_MAP(){
+    static int turn = 0;
     struct Celula* a = (--p)->cell;
     struct Celula* b = (--p)->cell->direita;
     struct Pilha* pai = (--p);
     struct Celula* res = alocar_celula(-25);
-    if(b->tipo == -26){
+    if(celulas <= 10){
+        turn = 1;
         if(pai->cell)
-            return b;
-        else{
-            push(b);
-            return b;
-        }
-
-    }else{
-        struct Celula* head = alocar_celula(-2);
-        head->direita = b;
-        head->esquerda = alocar_celula(-23);
-        head = eval(head);
-
-        struct Celula* tail = alocar_celula(-2);
-        tail->direita = b;
-        tail->esquerda = alocar_celula(-24);
-        tail = eval(tail);
-
-
-        res->esquerda = alocar_celula(-2);
-        res->esquerda->esquerda = a->direita;
-        res->esquerda->direita = head;
-        res->esquerda = eval(res->esquerda);
-        struct Celula* app = alocar_celula(-2);
-        app->esquerda = alocar_celula(-28);
-        app->direita = a->direita;
-        struct Celula* dir = alocar_celula(-2);
-        dir->esquerda = app;
-        dir->direita = tail;
-        res->direita = eval(dir);
-
-        return res;
+            return pai->cell;
+        else
+            return raiz;
     }
-
-
+    if(turn){
+        printf("Memoria Insuficiente");
+        exit(0);
+    }
+    struct Celula* aux = res;
+    while(b->direita->tipo != -26) {
+        struct Celula *head = b->esquerda;
+        b = b->direita;
+        struct Celula *app = alocar_celula(-2);
+        app->esquerda = a->direita;
+        app->direita = head;
+        aux->esquerda = app;
+        aux = aux->direita = alocar_celula(-25);
+    }
+    aux->tipo = -26;
+    raiz = res;
+    aux = res;
+    struct Pilha* p2 = p;
+    while(aux->tipo != -26 && aux->esquerda->tipo == -2){
+        if(celulas <= 10){
+            garbage_collection(3);
+            p = p2;
+            p->cell = 0;
+            aux = aux->foward;
+            res = res->foward;
+        }
+        aux->esquerda = eval(aux->esquerda);
+        if(aux->esquerda->tipo != -2){
+            aux = aux->direita;
+        }
+    }
+    return res;
 }
 
 struct Celula* eval(struct Celula *aux){
@@ -1412,7 +1384,6 @@ struct Celula* eval(struct Celula *aux){
  * ~0-1     =>'@'
  * ~0       =>'\0'
  */
-int cont = 0;
 void execucao(){
     double tempo = CLOCKS_PER_SEC;
     long long time = clock();
@@ -1521,6 +1492,6 @@ int main(void)
 {
     compilacao();
     execucao();
-    imprime_arvore(raiz,0);
+    imprime_arvore(raiz);
 }
 
