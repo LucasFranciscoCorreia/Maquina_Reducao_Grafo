@@ -4,7 +4,7 @@
 #include <time.h>
 #include <string.h>
 
-#define TAM 26500000
+#define TAM 1000000
 #define TAM_STACK 5000
 #define TAM_STRING 160000
 
@@ -31,6 +31,7 @@ struct Celula heap[TAM];
 struct Celula heap2[TAM];
 struct Celula *hp;
 struct Celula *raiz;
+struct Celula *cp;
 struct Stack pilha_p[TAM_STACK];
 struct Stack *pilha;
 struct Stack *end_stack;
@@ -61,7 +62,6 @@ struct Celula* alocar_celula(int tipo){
     if(!hp){
         printf("sem memoria");
         exit(0);
-       // garbage_collection(1);
     }
     struct Celula *alocado = hp;
     hp = hp->direita;
@@ -77,30 +77,18 @@ struct Celula* alocar_celula(int tipo){
 void arrumar_hp_heap2(){
     int i;
     for(i = 0; i < TAM-1;i++){
-//        heap2[i].tipo = 0;
-//        heap2[i].esquerda = 0;
         heap2[i].direita = heap2+i+1;
-//        heap2[i].foward = 0;
     }
     heap2[i].direita = 0;
-//    heap2[i].tipo = 0;
-//    heap2[i].esquerda = 0;
-//    heap2[i].foward = 0;
     hp = heap2;
 }
 
 void arrumar_hp_heap1(){
     int i = 0;
     for(i = 0; i < TAM-1;i++){
-//        heap[i].tipo = 0;
-//        heap[i].esquerda = 0;
         heap[i].direita = heap+i+1;
-//        heap[i].foward = 0;
     }
-//    heap[i].tipo = 0;
-//    heap[i].esquerda = 0;
     heap[i].direita = 0;
-//    heap[i].foward = 0;
     hp = heap;
 }
 
@@ -175,18 +163,68 @@ void mark_scan(){
     scan();
 }
 
+struct Celula* copiar_celulas_cheney(){
+    struct Celula* res = alocar_celula(raiz->tipo);
+    res->esquerda = raiz->esquerda;
+    res->direita = raiz->direita;
+    raiz->foward = res;
+    struct Celula *aux;
+    while(cp < hp) {
+        if(cp->esquerda && cp->esquerda->foward) {
+            cp->esquerda = cp->esquerda->foward;
+        }else if(cp->esquerda){
+            aux = alocar_celula(cp->esquerda->tipo);
+            aux->esquerda = cp->esquerda->esquerda;
+            aux->direita = cp->esquerda->direita;
+            cp->esquerda->foward = aux;
+            cp->esquerda = aux;
+        }
+        if(cp->direita && cp->direita->foward){
+            cp->direita = cp->direita->foward;
+        }else if(cp->direita){
+            aux = alocar_celula(cp->direita->tipo);
+            aux->esquerda = cp->direita->esquerda;
+            aux->direita = cp->direita->direita;
+            cp->direita->foward = aux;
+            cp->direita = aux;
+        }
+        cp++;
+
+    }
+
+    return res;
+}
+
+void cheney(){
+    static char choose_heap = 1;
+    if(choose_heap){
+        arrumar_hp_heap2();
+    }else{
+        arrumar_hp_heap1();
+    }
+    celulas = TAM;
+    choose_heap = !choose_heap;
+    cp = hp;
+    raiz = copiar_celulas_cheney();
+}
+
 void garbage_collection(int type){
     garbage_calls++;
     switch (type){
         case 1:
-            //printf("Garbage Collection (Mark-Scan) Iniciado\n");
+            printf("Garbage Collection (Mark-Scan) Iniciado\n");
             mark_scan();
-            //printf("Mark-Scan Encerrado\n");
+            printf("Mark-Scan Encerrado\n");
             break;
         case 2:
-            //printf("Garbage Collection (Fenichel-Yochelson) Iniciado\n");
+            printf("Garbage Collection (Fenichel-Yochelson) Iniciado\n");
             fenichel_yochelson();
-            //printf("Fenichel-Yochelson Encerrado\n");
+            printf("Fenichel-Yochelson Encerrado\n");
+            break;
+        case 3:
+            printf("Garbage Collection (Cheney) Iniciado\n");
+            cheney();
+            printf("Cheney Encerrado\n");
             break;
     }
 
@@ -223,7 +261,7 @@ char entrada[TAM_STRING] = "S(K(SII))(S(S(KS)K)(K(SII)))(S(K(S(S(S(S(K<)I)(K2))I
 //char lista[TAM_STRING] = "(:1(:2(:3(:4(:5(:6[]))))))\0";
 //char lista = "[3*8, 7*(5+2), aaa, (8/4)**(2+1), (8/4)**(2+1), bbb]";
 
-unsigned int X = 40;
+unsigned int X = 20;
 int pcont = 0;
 
 void addPilha(struct Argumento *elem){
@@ -1112,7 +1150,11 @@ void reduz_multiplicacao(){
     struct Celula *b = (p-2)->cell;
     struct Pilha *pai = p-3;
     a->direita = eval(a->direita);
+    if(celulas <= 10)
+        return;
     b->direita = eval(b->direita);
+    if(celulas <= 10)
+        return;
     a = a->direita;
     b = b->direita;
     p = pai;
@@ -1175,15 +1217,14 @@ void reduz_potencia(){
 void reduz_Y(){
     struct Celula *a = (--p)->cell->direita;
     struct Pilha *pai = (--p);
-    struct Celula *app1 = alocar_celula(~0-1);
-    app1->esquerda = a;
-    app1->direita = app1;
     if(pai->cell){
-        pai->cell->esquerda = app1;
+        pai->cell->esquerda = a;
+        pai->cell->direita = pai->cell;
     }else{
         p++;
         p->cell = 0;
-        raiz = app1;
+        raiz->esquerda = a;
+        raiz->direita = raiz;
         push(raiz);
     }
 }
@@ -1194,10 +1235,6 @@ void reduz_Hd() {
     p = p-2;
     raiz =  a->esquerda;
     push(raiz);
-//    struct Celula *aux = a->direita->direita;
-//    a->tipo = aux->esquerda->tipo;
-//    a->direita = 0;
-//    a->esquerda->esquerda = 0;
 }
 
 void reduz_Tl(){
@@ -1206,10 +1243,6 @@ void reduz_Tl(){
     p = p-2;
     raiz = a->direita;
     push(raiz);
-//    struct Celula* aux = a->direita->direita;
-//    a->esquerda = aux->esquerda;
-//    a->direita = aux->direita;
-//    a->tipo  = aux->tipo;
 }
 
 struct Celula* reduz_MAP(){
@@ -1240,7 +1273,6 @@ struct Celula* reduz_MAP(){
         res->esquerda = alocar_celula(-2);
         res->esquerda->esquerda = a->direita;
         res->esquerda->direita = head;
-        //res->esquerda->direita = alocar_celula(10);
         res->esquerda = eval(res->esquerda);
         struct Celula* app = alocar_celula(-2);
         app->esquerda = alocar_celula(-28);
@@ -1264,7 +1296,6 @@ struct Celula* eval(struct Celula *aux){
     struct Celula *raiz_aux = raiz;
     raiz = aux;
     buscar_reduz(aux);
-    //struct Celula* res;
     while(raiz->tipo == -2) {
         switch (p->cell->tipo) {
             case -4:
@@ -1381,32 +1412,14 @@ struct Celula* eval(struct Celula *aux){
  * ~0       =>'\0'
  */
 int cont = 0;
-
-int contar_celulas(struct Celula* aux){
-    if(aux) {
-        cont++;
-        if (aux->esquerda)
-            contar_celulas(aux->esquerda);
-        if (aux->direita)
-            contar_celulas(aux->direita);
-    }
-    return cont;
-}
 void execucao(){
     double tempo = CLOCKS_PER_SEC;
     long long time = clock();
     p = redex+1;
     buscar_reduz(raiz);
-    //int i = 0;
     while(raiz->tipo == -2){
         if(celulas <= 10){
-            //cont = 0;
-            //contar_celulas(raiz);
-            //printf("%d <=> ", cont);
-            //cont = 0;
-            garbage_collection(2);
-            //contar_celulas(raiz);
-            //printf("%d\n", cont);
+            garbage_collection(3);
             p = redex+1;
             p->cell = 0;
             buscar_reduz(raiz);
@@ -1505,15 +1518,8 @@ void compilacao(){
 
 int main(void)
 {
-    //printf("%d\n", sizeof(struct Celula));
-    //printf("%ld\n",strlen(entrada));
-    //printf("%d\n", sizeof(struct Celula));
     compilacao();
-    //printf("%d\n",pcont);
     execucao();
     imprime_arvore(raiz,0);
-    //printf("[");
-    //imprime_lista(raiz);
-    //printf("]");
 }
 
