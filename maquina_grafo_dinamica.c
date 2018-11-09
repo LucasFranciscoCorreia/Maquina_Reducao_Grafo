@@ -4,7 +4,7 @@
 #include <time.h>
 #include <string.h>
 
-#define TAM 10000000
+#define TAM 50000000
 #define TAM_STACK 5000
 #define TAM_STRING 160000
 
@@ -211,19 +211,19 @@ void garbage_collection(int type){
     garbage_calls++;
     switch (type){
         case 1:
-            printf("Garbage Collection (Mark-Scan) Iniciado\n");
+//            printf("Garbage Collection (Mark-Scan) Iniciado\n");
             mark_scan();
-            printf("Mark-Scan Encerrado\n");
+//            printf("Mark-Scan Encerrado\n");
             break;
         case 2:
-            printf("Garbage Collection (Fenichel-Yochelson) Iniciado\n");
+//            printf("Garbage Collection (Fenichel-Yochelson) Iniciado\n");
             fenichel_yochelson();
-            printf("Fenichel-Yochelson Encerrado\n");
+//            printf("Fenichel-Yochelson Encerrado\n");
             break;
         case 3:
-            printf("Garbage Collection (Cheney) Iniciado\n");
+//            printf("Garbage Collection (Cheney) Iniciado\n");
             cheney();
-            printf("Cheney Encerrado\n");
+//            printf("Cheney Encerrado\n");
             break;
     }
 
@@ -253,13 +253,13 @@ void garbage_collection(int type){
 //Fib1
 // char entrada[TAM_STRING] = "S(K(SII))(S(S(KS)K)(K(SII)))(S(K(S(S(S(KI)(S(S(K<)I)(K2)))I)))(S(S(KS)(S(K(S(K+)))(S(S(KS)(S(KK)I))(K(S(S(K-)I)(K2))))))(S(S(KS)(S(KK)I))(K(S(S(K-)I)(K1))))))X\0";
 //Fib2
-//char entrada[TAM_STRING] = "S(K(SII))(S(S(KS)K)(K(SII)))(S(K(S(S(S(S(K<)I)(K2))I)))(S(S(KS)(S(K(S(K+)))(S(S(KS)(S(KK)I))(K(S(S(K-)I)(K2))))))(S(S(KS)(S(KK)I))(K(S(S(K-)I)(K1))))))X\0";
+char entrada[TAM_STRING] = "S(K(SII))(S(S(KS)K)(K(SII)))(S(K(S(S(S(S(K<)I)(K2))I)))(S(S(KS)(S(K(S(K+)))(S(S(KS)(S(KK)I))(K(S(S(K-)I)(K2))))))(S(S(KS)(S(KK)I))(K(S(S(K-)I)(K1))))))X\0";
 //char entrada[TAM_STRING] = "H(T(T(T((:1(:2(:3(:4(:5(:6[]))))))))))\0";
-char entrada[TAM_STRING] = "M(S(K(SII))(S(S(KS)K)(K(SII)))(S(K(S(S(S(S(K<)I)(K2))I)))(S(S(KS)(S(K(S(K+)))(S(S(KS)(S(KK)I))(K(S(S(K-)I)(K2))))))(S(S(KS)(S(KK)I))(K(S(S(K-)I)(K1)))))))(:21(:22(:23(:24(:25(:26(:27(:28(:29(:30[]))))))))))\0";
+//char entrada[TAM_STRING] = "M(S(K(SII))(S(S(KS)K)(K(SII)))(S(K(S(S(S(S(K<)I)(K2))I)))(S(S(KS)(S(K(S(K+)))(S(S(KS)(S(KK)I))(K(S(S(K-)I)(K2))))))(S(S(KS)(S(KK)I))(K(S(S(K-)I)(K1)))))))(:21(:22(:23(:24(:25(:26(:27(:28(:29(:30[]))))))))))\0";
 //char lista[TAM_STRING] = "(:0(:1(:2(:3(:4(:5(:6(:7(:8(:9[]))))))))))";
 //char lista[TAM_STRING] = "(:1(:2(:3(:4(:5(:6[]))))))\0";
 //char lista = "[3*8, 7*(5+2), aaa, (8/4)**(2+1), (8/4)**(2+1), bbb]";
-unsigned int X = 28;
+unsigned int X =40;
 int pcont = 0;
 
 void addPilha(struct Argumento *elem){
