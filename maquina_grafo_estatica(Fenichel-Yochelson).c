@@ -4,19 +4,18 @@
 #include <time.h>
 #include <string.h>
 
-#define TAM 50000000
+#define TAM 4272
 #define TAM_STACK 5000
 #define TAM_STRING 160000
 
 struct Celula{
-    char garbage;
     int tipo;
-    struct Celula *direita, *esquerda, *foward;
+    struct Celula *direita, *esquerda;
 };
 
 struct Argumento{
     char *tipo;
-    struct Argumento *direita, *esquerda, *proximo;
+    struct Argumento *direita, *esquerda;
 };
 
 struct Stack{
@@ -27,11 +26,11 @@ struct Pilha{
     struct Celula *cell;
 };
 
-struct Celula *heap;
-struct Celula *heap2;
+struct Celula heap[TAM];
+struct Celula heap2[TAM];
+struct Celula *end_heap;
 struct Celula *hp;
 struct Celula *raiz;
-struct Celula *cp;
 struct Stack pilha_p[TAM_STACK];
 struct Stack *pilha;
 struct Stack *end_stack;
@@ -41,15 +40,7 @@ int celulas;
 int garbage_calls = 0;
 
 void alocar_memoria(){
-    heap = (struct Celula*) calloc(TAM, sizeof(struct Celula));
-    heap2 = (struct Celula*) calloc(TAM,sizeof(struct Celula));
-    int i;
-    for(i = 0; i < TAM-1;i++) {
-        (heap + i)->direita = (heap + i + 1);
-        (heap2+i)->direita = heap2+i+1;
-    }
-    (heap+i)->direita = 0;
-    (heap2+i)->direita = 0;
+    end_heap = heap+TAM+1;
     hp = heap;
     pilha = pilha_p;
     end_stack = pilha + (TAM_STACK - 1);
@@ -59,15 +50,14 @@ void alocar_memoria(){
 
 
 struct Celula* alocar_celula(int tipo){
-    if(!hp){
+    if(hp > end_heap){
         printf("sem memoria");
         exit(0);
     }
     struct Celula *alocado = hp;
-    hp = hp->direita;
+    hp++;
     alocado->direita = 0;
     alocado->esquerda = 0;
-    alocado->foward = 0;
     alocado->tipo = tipo;
     celulas--;
     return alocado;
@@ -75,34 +65,32 @@ struct Celula* alocar_celula(int tipo){
 
 
 void arrumar_hp_heap2(){
-    int i;
-    for(i = 0; i < TAM-1;i++){
-        heap2[i].direita = heap2+i+1;
-    }
-    heap2[i].direita = 0;
+    end_heap = heap2+TAM-1;
+    heap2[TAM-1].direita = 0;
     hp = heap2;
 }
 
 void arrumar_hp_heap1(){
-    int i = 0;
-    for(i = 0; i < TAM-1;i++){
-        heap[i].direita = heap+i+1;
-    }
-    heap[i].direita = 0;
+    end_heap = heap+TAM-1;
+    heap[TAM-1].direita = 0;
     hp = heap;
 }
 
 struct Celula* copiar_celulas_FY(struct Celula* aux){
     struct Celula* res;
-    if(aux->foward)
-        res = aux->foward;
+    if(aux->tipo == -1)
+        res = aux->esquerda;
     else {
         res = alocar_celula(aux->tipo);
-        aux->foward = res;
-        if (aux->esquerda)
-            res->esquerda = copiar_celulas_FY(aux->esquerda);
-        if (aux->direita)
-            res->direita = copiar_celulas_FY(aux->direita);
+        struct Celula *esq = aux->esquerda;
+        struct Celula *dir = aux->direita;
+        aux->esquerda = res;
+        aux->direita = 0;
+        aux->tipo = -1;
+        if (esq)
+            res->esquerda = copiar_celulas_FY(esq);
+        if (dir)
+            res->direita = copiar_celulas_FY(dir);
     }
     return res;
 }
@@ -119,111 +107,11 @@ void fenichel_yochelson(){
     raiz = copiar_celulas_FY(raiz);
 }
 
-void mark(struct Celula* no){
-    no->garbage = 1;
-    if(no->esquerda)
-        mark(no->esquerda);
-    if(no->direita)
-        mark(no->direita);
-}
-
-void scan(){
-    int i;
-    struct Celula *end_heap;
-    celulas = 0;
-    for(i = 0; i < TAM;i++){
-        if(!heap[i].garbage){
-            hp = heap+i;
-            end_heap = hp;
-            end_heap->tipo = 0;
-            end_heap->direita = 0;
-            end_heap->esquerda = 0;
-            celulas++;
-            i++;
-            break;
-        }
-        heap[i].garbage = 0;
-    }
-    for(; i < TAM;i++){
-        if(!heap[i].garbage){
-            end_heap->direita = heap+i;
-            end_heap = end_heap->direita;
-            end_heap->tipo = 0;
-            end_heap->direita = 0;
-            end_heap->esquerda = 0;
-            celulas++;
-        }
-        end_heap->garbage = 0;
-    }
-}
-
-void mark_scan(){
-    mark(raiz);
-    scan();
-}
-
-struct Celula* copiar_celulas_cheney(){
-    struct Celula* res = alocar_celula(raiz->tipo);
-    res->esquerda = raiz->esquerda;
-    res->direita = raiz->direita;
-    raiz->foward = res;
-    struct Celula *aux;
-    while(cp < hp) {
-        if(cp->esquerda && cp->esquerda->foward) {
-            cp->esquerda = cp->esquerda->foward;
-        }else if(cp->esquerda){
-            aux = alocar_celula(cp->esquerda->tipo);
-            aux->esquerda = cp->esquerda->esquerda;
-            aux->direita = cp->esquerda->direita;
-            cp->esquerda->foward = aux;
-            cp->esquerda = aux;
-        }
-        if(cp->direita && cp->direita->foward){
-            cp->direita = cp->direita->foward;
-        }else if(cp->direita){
-            aux = alocar_celula(cp->direita->tipo);
-            aux->esquerda = cp->direita->esquerda;
-            aux->direita = cp->direita->direita;
-            cp->direita->foward = aux;
-            cp->direita = aux;
-        }
-        cp++;
-
-    }
-
-    return res;
-}
-
-void cheney(){
-    static char choose_heap = 1;
-    if(choose_heap){
-        arrumar_hp_heap2();
-    }else{
-        arrumar_hp_heap1();
-    }
-    celulas = TAM;
-    choose_heap = !choose_heap;
-    cp = hp;
-    raiz = copiar_celulas_cheney();
-}
-
 void garbage_collection(int type){
     garbage_calls++;
     switch (type){
-        case 1:
-//            printf("Garbage Collection (Mark-Scan) Iniciado\n");
-            mark_scan();
-//            printf("Mark-Scan Encerrado\n");
-            break;
         case 2:
-//            printf("Garbage Collection (Fenichel-Yochelson) Iniciado\n");
             fenichel_yochelson();
-//            printf("Fenichel-Yochelson Encerrado\n");
-            break;
-        case 3:
-//            printf("Garbage Collection (Cheney) Iniciado\n");
-            cheney();
-//            printf("Cheney Encerrado\n");
             break;
     }
 
@@ -259,7 +147,7 @@ char entrada[TAM_STRING] = "S(K(SII))(S(S(KS)K)(K(SII)))(S(K(S(S(S(S(K<)I)(K2))I
 //char lista[TAM_STRING] = "(:0(:1(:2(:3(:4(:5(:6(:7(:8(:9[]))))))))))";
 //char lista[TAM_STRING] = "(:1(:2(:3(:4(:5(:6[]))))))\0";
 //char lista = "[3*8, 7*(5+2), aaa, (8/4)**(2+1), (8/4)**(2+1), bbb]";
-unsigned int X =40;
+unsigned int X =26;
 int pcont = 0;
 
 void addPilha(struct Argumento *elem){
@@ -1250,8 +1138,8 @@ struct Celula* reduz_MAP(){
             garbage_collection(3);
             p = p2;
             p->cell = 0;
-            aux = aux->foward;
-            res = res->foward;
+            aux = aux->esquerda;
+            res = res->esquerda;
         }
         aux->esquerda = eval(aux->esquerda);
         if(aux->esquerda->tipo != -2){
@@ -1391,7 +1279,7 @@ void execucao(){
     buscar_reduz(raiz);
     while(raiz->tipo == -2){
         if(celulas <= 10){
-            garbage_collection(3);
+            garbage_collection(2);
             p = redex+1;
             p->cell = 0;
             buscar_reduz(raiz);
@@ -1494,4 +1382,3 @@ int main(void)
     execucao();
     imprime_arvore(raiz);
 }
-
