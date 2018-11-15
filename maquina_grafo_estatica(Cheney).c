@@ -10,7 +10,7 @@
 
 struct Celula{
     int tipo;
-    struct Celula *direita, *esquerda;
+    struct Celula *direita, *esquerda
 };
 
 struct Argumento{
@@ -128,16 +128,7 @@ void cheney(){
     choose_heap = !choose_heap;
     cp = hp;
     raiz = copiar_celulas_cheney();
-}
-
-void garbage_collection(int type){
     garbage_calls++;
-    switch (type){
-        case 3:
-            cheney();
-            break;
-    }
-
     if(celulas <= 10){
         printf("Memoria Insuficiente");
         exit(0);
@@ -1157,7 +1148,7 @@ struct Celula* reduz_MAP(){
     struct Pilha* p2 = p;
     while(aux->tipo != -26 && aux->esquerda->tipo == -2){
         if(celulas <= 10){
-            garbage_collection(3);
+            cheney();
             p = p2;
             p->cell = 0;
             aux = aux->esquerda;
@@ -1301,7 +1292,7 @@ void execucao(){
     buscar_reduz(raiz);
     while(raiz->tipo == -2){
         if(celulas <= 10){
-            garbage_collection(3);
+            cheney();
             p = redex+1;
             p->cell = 0;
             buscar_reduz(raiz);

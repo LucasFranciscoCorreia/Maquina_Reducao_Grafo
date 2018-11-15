@@ -108,19 +108,7 @@ void scan(){
 void mark_scan(){
     mark(raiz);
     scan();
-}
-
-
-void garbage_collection(int type){
     garbage_calls++;
-    switch (type){
-        case 1:
-//            printf("Garbage Collection (Mark-Scan) Iniciado\n");
-            mark_scan();
-//            printf("Mark-Scan Encerrado\n");
-            break;
-    }
-
     if(celulas <= 10){
         printf("Memoria Insuficiente");
         exit(0);
@@ -1141,7 +1129,7 @@ struct Celula* reduz_MAP(){
     struct Pilha* p2 = p;
     while(aux->tipo != -26 && aux->esquerda->tipo == -2){
         if(celulas <= 10){
-            garbage_collection(1);
+            mark_scan();
         }
         aux->esquerda = eval(aux->esquerda);
         if(aux->esquerda->tipo != -2){
@@ -1281,7 +1269,7 @@ void execucao(){
     buscar_reduz(raiz);
     while(raiz->tipo == -2){
         if(celulas <= 10){
-            garbage_collection(1);
+            mark_scan();
             p = redex+1;
             p->cell = 0;
             buscar_reduz(raiz);
