@@ -4,7 +4,7 @@
 #include <time.h>
 #include <string.h>
 
-#define TAM 68359
+#define TAM 267
 #define TAM_STACK 5000
 #define TAM_STRING 160000
 
@@ -67,9 +67,11 @@ struct Celula* alocar_celula(int tipo){
     celulas--;
     return alocado;
 }
-
 void mark(struct Celula* no){
-    no->garbage = 1;
+    if(!no->garbage){
+        no->garbage = 1;
+        celulas--;
+    }
     if(no->esquerda)
         mark(no->esquerda);
     if(no->direita)
@@ -79,7 +81,6 @@ void mark(struct Celula* no){
 void scan(){
     int i;
     struct Celula *end_heap;
-    celulas = 0;
     for(i = 0; i < TAM;i++){
         if(!heap[i].garbage){
             free_list = heap+i;
@@ -87,7 +88,6 @@ void scan(){
             end_heap->tipo = 0;
             end_heap->direita = 0;
             end_heap->esquerda = 0;
-            celulas++;
             i++;
             break;
         }
@@ -100,14 +100,16 @@ void scan(){
             end_heap->tipo = 0;
             end_heap->direita = 0;
             end_heap->esquerda = 0;
-            celulas++;
         }
-        end_heap->garbage = 0;
+        heap[i].garbage = 0;
     }
 }
 
 void mark_scan(){
+    celulas = TAM;
     mark(raiz);
+    //printf("%d\n%d\n", cont, celulas);
+    //cont = 0;
     scan();
     garbage_calls++;
     if(celulas <= 10){

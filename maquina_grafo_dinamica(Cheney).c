@@ -4,7 +4,7 @@
 #include <time.h>
 #include <string.h>
 
-#define TAM 534
+#define TAM 140000000
 #define TAM_STACK 5000
 #define TAM_STRING 160000
 
