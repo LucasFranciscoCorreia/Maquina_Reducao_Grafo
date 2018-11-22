@@ -4,19 +4,18 @@
 #include <time.h>
 #include <string.h>
 
-#define TAM 140000000
+#define TAM 18000
 #define TAM_STACK 5000
 #define TAM_STRING 160000
 
 struct Celula{
     int tipo;
     struct Celula *direita, *esquerda;
-//    struct Celula *foward;
 };
 
 struct Argumento{
     char *tipo;
-    struct Argumento *direita, *esquerda, *proximo;
+    struct Argumento *direita, *esquerda;
 };
 
 struct Stack{
@@ -29,10 +28,11 @@ struct Pilha{
 
 struct Celula *heap;
 struct Celula *heap2;
-struct Celula *hp;
-struct Celula *raiz;
-struct Celula *cp;
 struct Celula *end_heap;
+struct Celula *hp;
+struct Celula *cp;
+struct Celula *raiz;
+struct Celula *S, *K, *I, *B, *C, *D, *E, *F, *TRUE, *FALSE, *GT, *GET, *LT, *LET, *EQ, *PLUS, *SUB, *MULT, *DIV, *Y, *HD, *TL, *MAP, *POW, *EMPTY_LIST;
 struct Stack pilha_p[TAM_STACK];
 struct Stack *pilha;
 struct Stack *end_stack;
@@ -42,11 +42,64 @@ int celulas;
 int garbage_calls = 0;
 
 void alocar_memoria(){
+    S = calloc(1, sizeof(struct Celula));
+    K = calloc(1, sizeof(struct Celula));
+    I = calloc(1, sizeof(struct Celula));
+    B = calloc(1, sizeof(struct Celula));
+    C = calloc(1, sizeof(struct Celula));
+    D = calloc(1, sizeof(struct Celula));
+    E = calloc(1, sizeof(struct Celula));
+    F = calloc(1, sizeof(struct Celula));
+    Y = calloc(1, sizeof(struct Celula));
+    PLUS = calloc(1, sizeof(struct Celula));
+    SUB = calloc(1, sizeof(struct Celula));
+    MULT = calloc(1, sizeof(struct Celula));
+    DIV = calloc(1, sizeof(struct Celula));
+    POW = calloc(1, sizeof(struct Celula));
+    GT = calloc(1, sizeof(struct Celula));
+    GET = calloc(1, sizeof(struct Celula));
+    LT = calloc(1, sizeof(struct Celula));
+    LET = calloc(1, sizeof(struct Celula));
+    EQ = calloc(1, sizeof(struct Celula));
+    TRUE = calloc(1, sizeof(struct Celula));
+    FALSE = calloc(1, sizeof(struct Celula));
+    HD = calloc(1, sizeof(struct Celula));
+    TL = calloc(1, sizeof(struct Celula));
+    MAP = calloc(1, sizeof(struct Celula));
+    EMPTY_LIST = calloc(1, sizeof(struct Celula));
+
+    S->tipo = -3;
+    K->tipo = -4;
+    I->tipo = -5;
+    B->tipo = -6;
+    C->tipo = -7;
+    D->tipo = -8;
+    E->tipo = -9;
+    F->tipo = -10;
+    TRUE->tipo = -11;
+    FALSE->tipo = -12;
+    GT->tipo = -13;
+    GET->tipo = -14;
+    LT->tipo = -15;
+    LET->tipo = -16;
+    EQ->tipo = -17;
+    PLUS->tipo = -18;
+    SUB->tipo = -19;
+    MULT->tipo = -20;
+    DIV->tipo = -21;
+    Y->tipo = -22;
+    HD->tipo = -23;
+    TL->tipo = -24;
+    EMPTY_LIST->tipo = -26;
+    POW->tipo = -27;
+    MAP->tipo = -28;
+
+
     heap = (struct Celula*) malloc(TAM*sizeof(struct Celula));
     heap2 = (struct Celula*) malloc(TAM*sizeof(struct Celula));
+    end_heap = heap+TAM+1;
     hp = heap;
     pilha = pilha_p;
-    end_heap = heap+TAM-1;
     end_stack = pilha + (TAM_STACK - 1);
     raiz = NULL;
     celulas = TAM;
@@ -58,25 +111,76 @@ struct Celula* alocar_celula(int tipo){
         printf("sem memoria");
         exit(0);
     }
-    struct Celula *alocado = hp;
-    hp++;
-    alocado->direita = 0;
-    alocado->esquerda = 0;
-    alocado->tipo = tipo;
-    celulas--;
-    return alocado;
+    struct Celula* alocado = 0;
+    switch (tipo) {
+        case -4:
+            return K;
+        case -3:
+            return S;
+        case -5:
+            return I;
+        case -6:
+            return B;
+        case -7:
+            return C;
+        case -8:
+            return D;
+        case -9:
+            return E;
+        case -10:
+            return F;
+        case -11:
+            return TRUE;
+        case -12:
+            return FALSE;
+        case -13:
+            return GT;
+        case -14:
+            return GET;
+        case -15:
+            return LT;
+        case -16:
+            return LET;
+        case -17:
+            return EQ;
+        case -18:
+            return PLUS;
+        case -19:
+            return SUB;
+        case -20:
+            return MULT;
+        case -21:
+            return DIV;
+        case -22:
+            return Y;
+        case -23:
+            return HD;
+        case -24:
+            return TL;
+        case -27:
+            return POW;
+        case -28:
+            return MAP;
+        default:
+            alocado = hp++;
+            alocado->direita = 0;
+            alocado->esquerda = 0;
+            alocado->tipo = tipo;
+            celulas--;
+            return alocado;
+    }
 }
 
 
 void arrumar_hp_heap2(){
     end_heap = heap2+TAM-1;
-    heap2[TAM-1].direita = 0;
+    //heap2[TAM-1].direita = 0;
     hp = heap2;
 }
 
 void arrumar_hp_heap1(){
     end_heap = heap+TAM-1;
-    heap[TAM-1].direita = 0;
+    //heap[TAM-1].direita = 0;
     hp = heap;
 }
 
@@ -95,22 +199,27 @@ struct Celula* copiar_celulas_cheney(){
             cp->esquerda = esq->esquerda;
         }else if(esq){
             aux = alocar_celula(esq->tipo);
-            aux->esquerda = esq->esquerda;
-            aux->direita = esq->direita;
-            esq->tipo = -1;
-            esq->esquerda = aux;
-            esq->direita = 0;
+            if(aux->tipo == -2) {
+                aux->esquerda = esq->esquerda;
+                aux->direita = esq->direita;
+                esq->tipo = -1;
+                esq->esquerda = aux;
+                esq->direita = 0;
+            }
             cp->esquerda = aux;
+
         }
         if(dir && dir->tipo == -1){
             cp->direita = dir->esquerda;
         }else if(dir){
             aux = alocar_celula(dir->tipo);
-            aux->esquerda = dir->esquerda;
-            aux->direita = dir->direita;
-            dir->tipo = -1;
-            dir->esquerda = aux;
-            dir->direita = 0;
+            if(aux->tipo == -2) {
+                aux->esquerda = dir->esquerda;
+                aux->direita = dir->direita;
+                dir->tipo = -1;
+                dir->esquerda = aux;
+                dir->direita = 0;
+            }
             cp->direita = aux;
         }
         cp++;

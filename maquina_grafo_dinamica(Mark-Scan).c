@@ -3,8 +3,12 @@
 #include <math.h>
 #include <time.h>
 #include <string.h>
+#include <sys/ioctl.h>
+#include <linux/perf_event.h>
+#include <asm/unistd.h>
+#include <unistd.h>
 
-#define TAM 267
+#define TAM 1068
 #define TAM_STACK 5000
 #define TAM_STRING 160000
 
@@ -16,7 +20,7 @@ struct Celula{
 
 struct Argumento{
     char *tipo;
-    struct Argumento *direita, *esquerda, *proximo;
+    struct Argumento *direita, *esquerda;
 };
 
 struct Stack{
@@ -27,10 +31,42 @@ struct Pilha{
     struct Celula *cell;
 };
 
-struct Celula *heap;
+/*
+ * ~0-27    => MAP
+ * ~0-26    => '**'
+ * ~0-25    =>'[]'
+ * ~0-24    =>':'
+ * ~0-23    =>'Tl'
+ * ~0-22    =>'Hd'
+ * ~0-21    =>'Y'
+ * ~0-20    =>'/'
+ * ~0-19    =>'*'
+ * ~0-18    =>'-'
+ * ~0-17    =>'+'
+ * ~O-16    =>'=='
+ * ~0-15    =>'<='
+ * ~0-14    =>'<'
+ * ~0-13    =>'>='
+ * ~0-12    =>'>'
+ * ~0-11    =>'FALSE'
+ * ~0-10    =>'TRUE'
+ * ~0-9     =>'F'
+ * ~0-8     =>'E'
+ * ~0-7     =>'D'
+ * ~0-6     =>'C
+ * ~0-5     =>'B
+ * ~0-4     =>'I'
+ * ~0~3     =>'K'
+ * ~0-2     =>'S'
+ * ~0-1     =>'@'
+ * ~0       =>'\0'
+ */
+
+
+struct Celula heap[TAM];
 struct Celula *free_list;
 struct Celula *raiz;
-struct Celula *cp;
+struct Celula *S, *K, *I, *B, *C, *D, *E, *F, *TRUE, *FALSE, *GT, *GET, *LT, *LET, *EQ, *PLUS, *SUB, *MULT, *DIV, *Y, *HD, *TL, *MAP, *POW, *EMPTY_LIST;
 struct Stack pilha_p[TAM_STACK];
 struct Stack *pilha;
 struct Stack *end_stack;
@@ -40,12 +76,66 @@ int celulas;
 int garbage_calls = 0;
 
 void alocar_memoria(){
-    heap = (struct Celula*) malloc(TAM*sizeof(struct Celula));
+    S = calloc(1, sizeof(struct Celula));
+    K = calloc(1, sizeof(struct Celula));
+    I = calloc(1, sizeof(struct Celula));
+    B = calloc(1, sizeof(struct Celula));
+    C = calloc(1, sizeof(struct Celula));
+    D = calloc(1, sizeof(struct Celula));
+    E = calloc(1, sizeof(struct Celula));
+    F = calloc(1, sizeof(struct Celula));
+    Y = calloc(1, sizeof(struct Celula));
+    PLUS = calloc(1, sizeof(struct Celula));
+    SUB = calloc(1, sizeof(struct Celula));
+    MULT = calloc(1, sizeof(struct Celula));
+    DIV = calloc(1, sizeof(struct Celula));
+    POW = calloc(1, sizeof(struct Celula));
+    GT = calloc(1, sizeof(struct Celula));
+    GET = calloc(1, sizeof(struct Celula));
+    LT = calloc(1, sizeof(struct Celula));
+    LET = calloc(1, sizeof(struct Celula));
+    EQ = calloc(1, sizeof(struct Celula));
+    TRUE = calloc(1, sizeof(struct Celula));
+    FALSE = calloc(1, sizeof(struct Celula));
+    HD = calloc(1, sizeof(struct Celula));
+    TL = calloc(1, sizeof(struct Celula));
+    MAP = calloc(1, sizeof(struct Celula));
+    EMPTY_LIST = calloc(1, sizeof(struct Celula));
+
+    S->tipo = -3;
+    K->tipo = -4;
+    I->tipo = -5;
+    B->tipo = -6;
+    C->tipo = -7;
+    D->tipo = -8;
+    E->tipo = -9;
+    F->tipo = -10;
+    TRUE->tipo = -11;
+    FALSE->tipo = -12;
+    GT->tipo = -13;
+    GET->tipo = -14;
+    LT->tipo = -15;
+    LET->tipo = -16;
+    EQ->tipo = -17;
+    PLUS->tipo = -18;
+    SUB->tipo = -19;
+    MULT->tipo = -20;
+    DIV->tipo = -21;
+    Y->tipo = -22;
+    HD->tipo = -23;
+    TL->tipo = -24;
+    EMPTY_LIST->tipo = -26;
+    POW->tipo = -27;
+    MAP->tipo = -28;
+
+    //heap = (struct Celula*) malloc(TAM*sizeof(struct Celula));
+
     int i;
     for(i = 0; i < TAM-1;i++) {
         (heap + i)->direita = (heap + i + 1);
     }
     (heap+i)->direita = 0;
+
     free_list = heap;
     pilha = pilha_p;
     end_stack = pilha + (TAM_STACK - 1);
@@ -59,13 +149,65 @@ struct Celula* alocar_celula(int tipo){
         printf("sem memoria");
         exit(0);
     }
-    struct Celula *alocado = free_list;
-    free_list = free_list->direita;
-    alocado->direita = 0;
-    alocado->esquerda = 0;
-    alocado->tipo = tipo;
-    celulas--;
-    return alocado;
+    struct Celula* alocado = 0;
+    switch (tipo) {
+        case -4:
+            return K;
+        case -3:
+            return S;
+        case -5:
+            return I;
+        case -6:
+            return B;
+        case -7:
+            return C;
+        case -8:
+            return D;
+        case -9:
+            return E;
+        case -10:
+            return F;
+        case -11:
+            return TRUE;
+        case -12:
+            return FALSE;
+        case -13:
+            return GT;
+        case -14:
+            return GET;
+        case -15:
+            return LT;
+        case -16:
+            return LET;
+        case -17:
+            return EQ;
+        case -18:
+            return PLUS;
+        case -19:
+            return SUB;
+        case -20:
+            return MULT;
+        case -21:
+            return DIV;
+        case -22:
+            return Y;
+        case -23:
+            return HD;
+        case -24:
+            return TL;
+        case -27:
+            return POW;
+        case -28:
+            return MAP;
+        default:
+            alocado = free_list;
+            free_list = free_list->direita;
+            alocado->direita = 0;
+            alocado->esquerda = 0;
+            alocado->tipo = tipo;
+            celulas--;
+            return alocado;
+    }
 }
 void mark(struct Celula* no){
     if(!no->garbage){
@@ -85,9 +227,6 @@ void scan(){
         if(!heap[i].garbage){
             free_list = heap+i;
             end_heap = free_list;
-            end_heap->tipo = 0;
-            end_heap->direita = 0;
-            end_heap->esquerda = 0;
             i++;
             break;
         }
@@ -97,19 +236,15 @@ void scan(){
         if(!heap[i].garbage){
             end_heap->direita = heap+i;
             end_heap = end_heap->direita;
-            end_heap->tipo = 0;
-            end_heap->direita = 0;
-            end_heap->esquerda = 0;
         }
         heap[i].garbage = 0;
     }
+    end_heap->direita = 0;
 }
 
 void mark_scan(){
     celulas = TAM;
     mark(raiz);
-    //printf("%d\n%d\n", cont, celulas);
-    //cont = 0;
     scan();
     garbage_calls++;
     if(celulas <= 10){
@@ -354,67 +489,67 @@ struct Celula* converter_para_celula(struct Argumento *res){
             grafo = alocar_celula(~0-1);
             break;
         case 'K':
-            grafo = alocar_celula(~0-3);
+            grafo = K;
             break;
         case 'S':
-            grafo = alocar_celula(~0-2);
+            grafo = S;
             break;
         case 'I':
-            grafo = alocar_celula(~0-4);
+            grafo = I;
             break;
         case 'B':
-            grafo = alocar_celula(~0-5);
+            grafo = B;
             break;
         case 'C':
-            grafo = alocar_celula(~0-6);
+            grafo = C;
             break;
         case 'D':
-            grafo = alocar_celula(~0-7);
+            grafo = D;
             break;
         case 'E':
-            grafo = alocar_celula(~0-8);
+            grafo = E;
             break;
         case 'F':
-            grafo = alocar_celula(~0-9);
+            grafo = F;
             break;
         case '>':
-            grafo = alocar_celula(~0-12);
+            grafo = GT;
             break;
         case '\v'://Ver caracter para >=
-            grafo = alocar_celula(~0-13);
+            grafo = GET;
             break;
         case '<':
-            grafo = alocar_celula(~0-14);
+            grafo = LT;
             break;
         case '\t'://Ver caracter para <=
-            grafo = alocar_celula(~0-15);
+            grafo = LET;
             break;
         case '=':
-            grafo = alocar_celula(~0-16);
+            grafo = EQ;
             break;
         case '+':
-            grafo = alocar_celula(~0-17);
+            grafo = PLUS;
             break;
         case '-':
-            grafo = alocar_celula(~0-18);
+            grafo = SUB;
             break;
         case '*':
-            grafo = alocar_celula(~0-19);
+            grafo = MULT;
             break;
         case '/':
-            grafo = alocar_celula(~0-20);
+            grafo = DIV;
             break;
         case 'Y':
-            grafo = alocar_celula(~0-21);
+            grafo = Y;
             break;
         case 'H':
-            grafo = alocar_celula(~0-22);
+            grafo = HD;
             break;
         case 'T':
-            grafo = alocar_celula(~0-23);
+            grafo = TL;
             break;
         case 'M':
-            grafo = alocar_celula(-28);
+            grafo = MAP;
             break;
         case 'X':
             grafo = alocar_celula(X);
@@ -1265,6 +1400,7 @@ struct Celula* eval(struct Celula *aux){
  * ~0-1     =>'@'
  * ~0       =>'\0'
  */
+
 void execucao(){
     double tempo = CLOCKS_PER_SEC;
     long long time = clock();
@@ -1369,10 +1505,37 @@ void compilacao(){
     printf("%lf segundos para realizacao do grafo\n", clock()/tempo);
 }
 
+long perf_event_open(struct perf_event_attr *hw_event, pid_t pid, int cpu, int group_fd, unsigned long flags){
+    long ret = syscall(__NR_perf_event_open, hw_event, pid, cpu, group_fd, flags);
+    return ret;
+}
+
 int main(void)
 {
+    struct perf_event_attr *page_faults = calloc(1, sizeof(struct perf_event_attr));
+    memset(page_faults, 0, sizeof(struct perf_event_attr));
+    page_faults->size = sizeof(struct perf_event_attr);
+    page_faults->disabled = 1;
+    page_faults->exclude_kernel = 1;
+    page_faults->exclude_hv = 1;
+    page_faults->exclude_idle = 1;
+    page_faults->type = PERF_TYPE_SOFTWARE;
+    page_faults->config = PERF_COUNT_SW_PAGE_FAULTS;
+    long fd = perf_event_open(page_faults, 0, -1, -1, 0);
+    if(fd == -1){
+        fprintf(stderr, "Error opening leader %llx\n", page_faults->config);
+    }
+    ioctl(fd, PERF_EVENT_IOC_RESET, 0);
+    ioctl(fd, PERF_EVENT_IOC_ENABLE, 0);
     compilacao();
     execucao();
     imprime_arvore(raiz);
+    ioctl(fd, PERF_EVENT_IOC_DISABLE, 0);
+    if(fd != -1){
+        long long count;
+        read(fd, &count, sizeof(long long));
+        printf("%lld page faults\n", count);
+        close(fd);
+    }
 }
 
