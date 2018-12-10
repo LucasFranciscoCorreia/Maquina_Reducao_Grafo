@@ -127,6 +127,232 @@ char tem(char *str, char busca){
     }
     return res;
 }
+
+void bracket_C(char *teste, int ini, int a, int nA, int c, int nC) {
+    char new_a[TAM];
+    char old_c[TAM];
+    new_a[0] = '[';
+    new_a[1] = teste[ini - 2];
+    new_a[2] = ']';
+    int j = 3, i;
+    for (i = a; i <= nA; i++) {
+        new_a[j++] = teste[i];
+    }
+    new_a[j] = '\0';
+    eval(new_a);
+    j = 0;
+    for (i = c; i <= nC; i++) {
+        old_c[j++] = teste[i];
+    }
+    old_c[j] = '\0';
+    ini -= 3;
+    j = 0;
+    teste[ini++] = 'C';
+    teste[ini++] = '(';
+    for (i = ini; new_a[j] != '\0'; i++) {
+        teste[i] = new_a[j++];
+    }
+    teste[i++] = ')';
+    j = 0;
+    for (; old_c[j] != '\0'; i++) {
+        teste[i] = old_c[j++];
+    }
+    teste[i] = '\0';
+}
+
+void bracket_S(char *teste, int ini, int a, int nA, int c, int nC) {
+    char new_a[TAM];
+    char new_c[TAM];
+    new_a[0] = new_c[0] = teste[ini - 3];
+    new_a[1] = new_c[1] = teste[ini - 2];
+    new_a[2] = new_c[2] = teste[ini - 1];
+
+    int j = 3;
+    int i;
+    for (i = a; i <= nA; i++) {
+        new_a[j++] = teste[i];
+    }
+    new_a[j] = '\0';
+    j = 3;
+    for (i = c; i <= nC; i++) {
+        new_c[j++] = teste[i];
+    }
+    new_c[j] = '\0';
+    eval(new_a);
+    eval(new_c);
+    ini-=3;
+    teste[ini++] = 'S';
+    teste[ini++] = '(';
+    j = 0;
+    for(i = ini;new_a[j] != '\0';i++ ){
+        teste[i] = new_a[j++];
+    }
+    teste[i++] = ')';
+    teste[i++] = '(';
+    j = 0;
+    for(;new_c[j] != '\0';i++){
+        teste[i] = new_c[j++];
+    }
+    teste[i++] = ')';
+    teste[i] = '\0';
+}
+
+void bracket_D(char *teste, int ini, int a, int nA, int b, int nB, int c, int nC) {
+    char old_a[TAM];
+    char new_b[TAM];
+    char new_c[TAM];
+    new_b[0] = new_c[0] = '[';
+    new_b[1] = new_c[1] = teste[ini-2];
+    new_b[2] = new_c[2] = ']';
+    int i, j = 0;
+    for(i = a; i <= nA;i++){
+        old_a[j++]=teste[i];
+    }
+    old_a[j] = '\0';
+    j = 3;
+    for(i = b;i <=nB;i++){
+        new_b[j++] = teste[i];
+    }
+    new_b[j] = '\0';
+    j = 3;
+    for(i = c;i <=nC;i++){
+        new_c[j++] = teste[i];
+    }
+    new_c[j] = '\0';
+    eval(new_b);
+    eval(new_c);
+    ini-=3;
+    j = ini;
+    teste[j++] = 'D';
+    for(i = 0;old_a[i] != '\0';i++){
+        teste[j++] = old_a[i];
+    }
+    teste[j++] = '(';
+    for(i = 0; new_b[i] != '\0';i++){
+        teste[j++] = new_b[i];
+    }
+    teste[j++] = ')';
+    teste[j++] = '(';
+    for(i = 0; new_c[i] != '\0';i++){
+        teste[j++] = new_c[i];
+    }
+    teste[j++] = ')';
+    teste[j] = '\0';
+
+}
+
+void bracket_B(char *teste, int ini, int a, int nA, int c, int nC) {
+    char new_c[TAM];
+    char old_a[TAM];
+    new_c[0] = '[';
+    new_c[1] = teste[ini - 2];
+    new_c[2] = ']';
+    int j = 3, i;
+    for (i = c; i <= nC; i++) {
+                    new_c[j++] = teste[i];
+                }
+    new_c[j] = '\0';
+    eval(new_c);
+    j = 0;
+    for (i = a; i <= nA; i++) {
+                    old_a[j++] = teste[i];
+                }
+    old_a[j++] = '\0';
+    ini -= 3;
+    j = 0;
+    teste[ini++] = 'B';
+    for (; old_a[j] != '\0'; ini++) {
+                    teste[ini] = old_a[j++];
+                }
+    j = 0;
+    teste[ini++] = '(';
+    for (i = ini; new_c[j] != '\0'; i++) {
+                    teste[i] = new_c[j++];
+                }
+    teste[i++] = ')';
+    teste[i++] = '\0';
+}
+
+void bracket_F(char *teste, int ini, int a, int nA, int b, int nB, int c, int nC) {
+    char old_a[TAM];
+    char old_c[TAM];
+    char new_b[TAM];
+    new_b[0] = '[';
+    new_b[1] = teste[ini-2];
+    new_b[2] = ']';
+    int i, j = 0;
+    for(i = a; i <=nA;i++){
+        old_a[j++] = teste[i];
+    }
+    old_a[j] = '\0';
+    j = 3;
+    for(i = b;i <= nB;i++){
+        new_b[j++] = teste[i];
+    }
+    new_b[j] = '\0';
+    j = 0;
+    for(i = c;i <=nC;i++){
+        old_c[j++] = teste[i];
+    }
+    old_c[j] = '\0';
+    eval(new_b);
+    ini-=3;
+    j = ini;
+    teste[j++] = 'F';
+    for(i = 0; old_a[i] != '\0';i++){
+        teste[j++] = old_a[i];
+    }
+    teste[j++] = '(';
+    for(i = 0; new_b[i] != '\0';i++){
+        teste[j++] = new_b[i];
+    }
+    teste[j++] = ')';
+    for(i = 0; old_c[i] != '\0';i++){
+        teste[j++] = old_c[i];
+    }
+    teste[j] = '\0';
+}
+
+void bracket_E(char *teste, int ini, int a, int nA, int b, int nB, int c, int nC) {
+    char old_a[TAM];
+    char old_b[TAM];
+    char new_c[TAM];
+    new_c[0] = '[';
+    new_c[1] = teste[ini-2];
+    new_c[2] = ']';
+    int i, j = 0;
+    for(i = a;i <=nA;i++){
+        old_a[j++] = teste[i];
+    }
+    old_a[j] = '\0';
+    j = 0;
+    for(i = b;i <=nB;i++){
+        old_b[j++] = teste[i];
+    }
+    old_b[j] ='\0';
+    j = 3;
+    for(i = c;i <=nC;i++){
+        new_c[j++] = teste[i];
+    }
+    new_c[j] = '\0';
+    eval(new_c);
+    ini-=3;
+    j = ini;
+    teste[j++] = 'E';
+    for(i = 0; old_a[i] != '\0';i++){
+        teste[j++] = old_a[i];
+    }
+    for(i = 0; old_b[i] != '\0';i++){
+        teste[j++] = old_b[i];
+    }
+    teste[j++] = '(';
+    for(i = 0; new_c[i] != '\0';i++){
+        teste[j++] = new_c[i];
+    }
+    teste[j++] = ')';
+    teste[j] = '\0';
+}
+
 void logica_combinatorial(char *teste) {
     while(tem(teste, '[')) {
         int ini;
@@ -138,107 +364,56 @@ void logica_combinatorial(char *teste) {
         acha_argumento(teste, c, &nC);
         char aHasBracket = contains(teste, teste[ini - 2], a, nA);
         char cHasBracket = contains(teste, teste[ini - 2], c, nC);
-        if (aHasBracket && cHasBracket) {
-            char new_a[TAM];
-            char new_c[TAM];
-            new_a[0] = new_c[0] = teste[ini - 3];
-            new_a[1] = new_c[1] = teste[ini - 2];
-            new_a[2] = new_c[2] = teste[ini - 1];
 
-            int j = 3;
-            int i;
-            for (i = a; i <= nA; i++) {
-                new_a[j++] = teste[i];
+        if(aHasBracket){
+            if(a == nA){
+                if(cHasBracket){
+                    bracket_S(teste, ini, a, nA, c, nC);
+                }else{
+                    bracket_C(teste, ini, a, nA, c, nC);
+                }
+            }else{
+                a = a+1;
+                acha_argumento(teste, a, &nA);
+                b = nA+1;
+                acha_argumento(teste, b, &nB);
+                aHasBracket = contains(teste, teste[ini-2], a, nA);
+                if(aHasBracket){
+                    if(cHasBracket){
+                        a = a-1;
+                        acha_argumento(teste, a, &nA);
+                        bracket_S(teste, ini, a, nA, c, nC);
+                    }else{
+                        a = a-1;
+                        acha_argumento(teste, a, &nA);
+                        bracket_C(teste, ini, a, nA, c, nC);
+                    }
+                }else{
+                    char bHasBracket = contains(teste,teste[ini-2],b, nB);
+                    if(bHasBracket){
+                        if(cHasBracket){
+                            bracket_D(teste, ini, a, nA, b, nB, c, nC);
+                        }else{
+                            bracket_F(teste, ini, a, nA, b, nB, c, nC);
+                        }
+                    }else{
+                        if(cHasBracket){
+                            bracket_E(teste, ini, a, nA, b, nB, c, nC);
+                        }else{
+                            a = a-1;
+                            acha_argumento(teste, a, &nA);
+                            bracket_C(teste, ini, a, nA, c, nC);
+                        }
+                    }
+                }
             }
-            new_a[j] = '\0';
-            j = 3;
-            for (i = c; i <= nC; i++) {
-                new_c[j++] = teste[i];
+        }else{
+            if(cHasBracket){
+                bracket_B(teste, ini, a, nA, c, nC);
+            }else{
+                printf("Erro");
+                exit(1);
             }
-            new_c[j] = '\0';
-            eval(new_a);
-            eval(new_c);
-            ini-=3;
-            teste[ini++] = 'S';
-            teste[ini++] = '(';
-            j = 0;
-            for(i = ini;new_a[j] != '\0';i++ ){
-                teste[i] = new_a[j++];
-            }
-            teste[i++] = ')';
-            teste[i++] = '(';
-            j = 0;
-            for(;new_c[j] != '\0';i++){
-                teste[i] = new_c[j++];
-            }
-            teste[i++] = ')';
-            teste[i++] = '\0';
-
-
-        } else if (aHasBracket && !cHasBracket) {
-            char new_a[TAM];
-            char old_c[TAM];
-            new_a[0] = '[';
-            new_a[1] = teste[ini - 2];
-            new_a[2] = ']';
-            int j = 3, i;
-            for (i = a; i <= nA; i++) {
-                new_a[j++] = teste[i];
-            }
-            new_a[j] = '\0';
-            eval(new_a);
-            j = 0;
-            for (i = c; i <= nC; i++) {
-                old_c[j++] = teste[i];
-            }
-            old_c[j++] = '\0';
-            ini -= 3;
-            j = 0;
-            teste[ini++] = 'C';
-            teste[ini++] = '(';
-            for (i = ini; new_a[j] != '\0'; i++) {
-                teste[i] = new_a[j++];
-            }
-            teste[i++] = ')';
-            j = 0;
-            for (; old_c[j] != '\0'; i++) {
-                teste[i] = old_c[j++];
-            }
-            teste[i] = '\0';
-
-        } else if (!aHasBracket && cHasBracket) {
-            char new_c[TAM];
-            char old_a[TAM];
-            new_c[0] = '[';
-            new_c[1] = teste[ini - 2];
-            new_c[2] = ']';
-            int j = 3, i;
-            for (i = c; i <= nC; i++) {
-                new_c[j++] = teste[i];
-            }
-            new_c[j] = '\0';
-            eval(new_c);
-            j = 0;
-            for (i = a; i <= nA; i++) {
-                old_a[j++] = teste[i];
-            }
-            old_a[j++] = '\0';
-            ini -= 3;
-            j = 0;
-            teste[ini++] = 'B';
-            for (; old_a[j] != '\0'; ini++) {
-                teste[ini] = old_a[j++];
-            }
-            j = 0;
-            teste[ini++] = '(';
-            for (i = ini; new_c[j] != '\0'; i++) {
-                teste[i] = new_c[j++];
-            }
-            teste[i++] = ')';
-            teste[i++] = '\0';
-        } else {
-            printf("Erro");
-            exit(1);
         }
     }
 }
@@ -260,8 +435,6 @@ void remove_parenteses_redundante(char *teste) {
 
 int main(){
     char teste[TAM] = "[x][y](y2<)y((x(y2-))(x(y1-))+)\0";
-
-    //eval(teste);
     logica_combinatorial(teste);
     remove_parenteses_redundante(teste);
     printf("%s\n", teste);
