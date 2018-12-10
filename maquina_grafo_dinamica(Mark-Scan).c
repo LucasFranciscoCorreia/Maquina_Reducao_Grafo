@@ -8,7 +8,7 @@
 #include <asm/unistd.h>
 #include <unistd.h>
 
-#define TAM 1068
+#define TAM 8300
 #define TAM_STACK 5000
 #define TAM_STRING 160000
 
@@ -279,7 +279,7 @@ char entrada[TAM_STRING] = "S(K(SII))(S(S(KS)K)(K(SII)))(S(K(S(S(S(S(K<)I)(K2))I
 //char lista[TAM_STRING] = "(:0(:1(:2(:3(:4(:5(:6(:7(:8(:9[]))))))))))";
 //char lista[TAM_STRING] = "(:1(:2(:3(:4(:5(:6[]))))))\0";
 //char lista = "[3*8, 7*(5+2), aaa, (8/4)**(2+1), (8/4)**(2+1), bbb]";
-unsigned int X = 26;
+unsigned int X = 20;
 int pcont = 0;
 
 void addPilha(struct Argumento *elem){
