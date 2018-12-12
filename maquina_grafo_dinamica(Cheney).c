@@ -267,13 +267,18 @@ void cheney(){
 //Fib1
 // char entrada[TAM_STRING] = "S(K(SII))(S(S(KS)K)(K(SII)))(S(K(S(S(S(KI)(S(S(K<)I)(K2)))I)))(S(S(KS)(S(K(S(K+)))(S(S(KS)(S(KK)I))(K(S(S(K-)I)(K2))))))(S(S(KS)(S(KK)I))(K(S(S(K-)I)(K1))))))X\0";
 //Fib2
-char entrada[TAM_STRING] = "S(K(SII))(S(S(KS)K)(K(SII)))(S(K(S(S(S(S(K<)I)(K2))I)))(S(S(KS)(S(K(S(K+)))(S(S(KS)(S(KK)I))(K(S(S(K-)I)(K2))))))(S(S(KS)(S(KK)I))(K(S(S(K-)I)(K1))))))X\0";
+//char entrada[TAM_STRING] = "S(K(SII))(S(S(KS)K)(K(SII)))(S(K(S(S(S(S(K<)I)(K2))I)))(S(S(KS)(S(K(S(K+)))(S(S(KS)(S(KK)I))(K(S(S(K-)I)(K2))))))(S(S(KS)(S(KK)I))(K(S(S(K-)I)(K1))))))X\0";
 //char entrada[TAM_STRING] = "H(T(T(T((:1(:2(:3(:4(:5(:6[]))))))))))\0";
 //char entrada[TAM_STRING] = "M(S(K(SII))(S(S(KS)K)(K(SII)))(S(K(S(S(S(S(K<)I)(K2))I)))(S(S(KS)(S(K(S(K+)))(S(S(KS)(S(KK)I))(K(S(S(K-)I)(K2))))))(S(S(KS)(S(KK)I))(K(S(S(K-)I)(K1)))))))(:21(:22(:23(:24(:25(:26(:27(:28(:29(:30[]))))))))))\0";
 //char lista[TAM_STRING] = "(:0(:1(:2(:3(:4(:5(:6(:7(:8(:9[]))))))))))";
 //char lista[TAM_STRING] = "(:1(:2(:3(:4(:5(:6[]))))))\0";
 //char lista = "[3*8, 7*(5+2), aaa, (8/4)**(2+1), (8/4)**(2+1), bbb]";
-unsigned int X = 26;
+//char entrada[TAM_STRING] = "S(S(KS)(S(S(KS)(S(KK)(K+)))(KI)))(S(KK)I)76\0";
+//char entrada[TAM_STRING] = "B(CI)I9I\0";
+char entrada[TAM_STRING] = "Y(ES(S(F<I2)I)(D(D+)(FBI(F-I2))(FBI(F-I1))))X\0";
+//char entrada[TAM_STRING] = "ES(S(F<I2)I)(D(D+)(FBI(F-I2))(FBI(F-I1)))(Y(ES(S(F<I2)I)(D(D+)(FBI(F-I2))(FBI(F-I1)))))X\0";
+//char entrada[TAM_STRING] = "(S((S((BC)((C((BB)I))I)))((BC)((C((BB)I))I))))IIK";
+unsigned int X = 30;
 int pcont = 0;
 
 void addPilha(struct Argumento *elem){
@@ -692,11 +697,18 @@ void imprime_arvore(struct Celula* no){
     //printf("%d\n", no->tipo);
     if(no->direita) {
         deph++;
-        imprime_arvore(no->direita);
-        if(lista)
-            printf("]");
-        else
+        if(no->direita != no) {
+            imprime_arvore(no->direita);
+            if (lista)
+                printf("]");
+            else
+                printf(")");
+        }else{
+            printf("Y(");
+            imprime_arvore(no->esquerda);
             printf(")");
+            return;
+        }
     }
     if(deph == 0)
         lista = 0;
@@ -1080,8 +1092,6 @@ void reduz_igual(){
 }
 
 void reduz_soma(){
-    struct Pilha *aux1 = p-1;
-    struct Pilha *aux2 = p-2;
     struct Celula *a = (p-1)->cell;
     struct Celula *b = (p-2)->cell;
     struct Pilha *pai = (p-3);
@@ -1199,14 +1209,15 @@ void reduz_potencia(){
 void reduz_Y(){
     struct Celula *a = (--p)->cell->direita;
     struct Pilha *pai = (--p);
+    struct Celula *app = alocar_celula(-2);
+    app->esquerda = a;
+    app->direita = app;
     if(pai->cell){
-        pai->cell->esquerda = a;
-        pai->cell->direita = pai->cell;
+        pai->cell->esquerda = app;
     }else{
         p++;
         p->cell = 0;
-        raiz->esquerda = a;
-        raiz->direita = raiz;
+        raiz->esquerda = app;
         push(raiz);
     }
 }
@@ -1485,6 +1496,7 @@ void execucao(){
         }
         if(p->cell)
             buscar_reduz(p->cell->esquerda);
+
 
     }
     printf("\n%lf segundos de reducao de grafo\n",(clock()-time)/tempo);
