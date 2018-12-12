@@ -3,7 +3,7 @@
 #include <time.h>
 #include <math.h>
 
-#define TAM 1000000
+#define TAM 2000
 
 struct Celula{
     int tipo;
@@ -157,14 +157,13 @@ struct Celula* alocar_celula(int tipo){
     }
 }
 
-
 void mark(struct Celula* no){
-    if(!no->garbage){
+    if(!no->garbage) {
         no->garbage = 1;
         celulas--;
-        if(no->esquerda)
+        if (no->esquerda)
             mark(no->esquerda);
-        if(no->direita)
+        if (no->direita)
             mark(no->direita);
     }
 }
@@ -176,24 +175,30 @@ void scan(){
         if(!heap[i].garbage){
             free_list = heap+i;
             end_heap = free_list;
+            end_heap->tipo = 0;
+            end_heap->direita = 0;
+            end_heap->esquerda = 0;
             i++;
             break;
         }
         heap[i].garbage = 0;
     }
     for(; i < TAM;i++){
-        if(!heap[i].garbage){
-            end_heap->direita = heap+i;
+        if(!heap[i].garbage) {
+            end_heap->direita = heap + i;
             end_heap = end_heap->direita;
+            end_heap->tipo = 0;
+            end_heap->direita = 0;
+            end_heap->esquerda = 0;
         }
         heap[i].garbage = 0;
     }
-    end_heap->direita = 0;
 }
-
 void mark_scan(){
     celulas = TAM;
     mark(raiz);
+    //printf("%d\n%d\n", cont, celulas);
+    //cont = 0;
     scan();
     garbage_calls++;
     if(celulas <= 10){
@@ -201,6 +206,8 @@ void mark_scan(){
         exit(0);
     }
 }
+
+
 
 //char entrada[TAM_STRING] = "S(SKK)(SKK)(SKK)S\0";
 //char entrada[TAM_STRING] = "S(K(K))(KS)(SK)KK(SK)K\0";
@@ -229,7 +236,7 @@ void mark_scan(){
 //char lista = "[3*8, 7*(5+2), aaa, (8/4)**(2+1), (8/4)**(2+1), bbb]";
 //char entrada[TAM_STRING] = "S(S(KS)(S(S(KS)(S(KK)(K+)))(KI)))(S(KK)I)76\0";
 //char entrada[TAM_STRING] = "B(CI)I9I\0";
-char entrada[TAM] = "Y(ES(S(F<I2)I)(D(D+)(FBI(F-I2))(FBI(F-I1))))25\0";
+char entrada[TAM] = "Y(ES(S(F<I2)I)(D(D+)(FBI(F-I2))(FBI(F-I1))))30\0";
 //char entrada[TAM_STRING] = "ES(S(F<I2)I)(D(D+)(FBI(F-I2))(FBI(F-I1)))(Y(ES(S(F<I2)I)(D(D+)(FBI(F-I2))(FBI(F-I1)))))X\0";
 //char entrada[TAM_STRING] = "(S((S((BC)((C((BB)I))I)))((BC)((C((BB)I))I))))IIK";
 char *entr;
