@@ -45,6 +45,33 @@ void associatividade_esquerda(char *teste, int *beg) {
 
     a = ini;
     acha_argumento(teste, a, &nA);
+    if(a != nA){
+        char aux[TAM];
+        char save[TAM];
+        char *vis = save;
+        int i,j = 0;
+        for(i =a+1; i < nA;i++){
+            aux[j++] = teste[i];
+        }
+        aux[j] = '\0';
+        for(i = 0; teste[i] != '\0';i++){
+            save[i] = teste[i];
+        }
+        save[i] = '\0';
+        int aux1 = 0;
+        associatividade_esquerda(aux, &aux1);
+        j = a;
+        teste[j++] ='(';
+        for(i = 0;aux[i]!= '\0';i++){
+            teste[j++] = aux[i];
+        }
+        teste[j++] = ')';
+        for(i = nA+1; save[i] != '\0';i++){
+            teste[j++] = save[i];
+        }
+        acha_argumento(teste, a, &nA);
+        fim = j;
+    }
     b = nA+1;
     acha_argumento(teste, b, &nB);
     c = nB+1;
@@ -52,8 +79,6 @@ void associatividade_esquerda(char *teste, int *beg) {
     while(nB != -1 && nC != -1){
         fim+=2;
         teste[fim] = '\0';
-        teste[fim-1] = 'a';
-        teste[fim-2] = 'a';
         int i = fim-3, end = fim-1;
 
         for(;i >= c;i--){
@@ -375,8 +400,6 @@ void logica_combinatorial(char *teste) {
             }else{
                 a = a+1;
                 acha_argumento(teste, a, &nA);
-                b = nA+1;
-                acha_argumento(teste, b, &nB);
                 aHasBracket = contains(teste, teste[ini-2], a, nA);
                 if(aHasBracket){
                     if(cHasBracket){
@@ -389,6 +412,8 @@ void logica_combinatorial(char *teste) {
                         bracket_C(teste, ini, a, nA, c, nC);
                     }
                 }else{
+                    b = nA+1;
+                    acha_argumento(teste, b, &nB);
                     char bHasBracket = contains(teste,teste[ini-2],b, nB);
                     if(bHasBracket){
                         if(cHasBracket){
@@ -409,7 +434,15 @@ void logica_combinatorial(char *teste) {
             }
         }else{
             if(cHasBracket){
-                bracket_B(teste, ini, a, nA, c, nC);
+                if(a == nA) {
+                    bracket_B(teste, ini, a, nA, c, nC);
+                }else {
+                    a = a+1;
+                    acha_argumento(teste, a, &nA);
+                    b = nA+1;
+                    acha_argumento(teste, b, &nB);
+                    bracket_E(teste, ini,a, nA, b, nB, c, nC);
+                }
             }else{
                 printf("Erro");
                 exit(1);
@@ -434,8 +467,15 @@ void remove_parenteses_redundante(char *teste) {
 }
 
 int main(){
-    char teste[TAM] = "[x][y](y2<)y((x(y2-))(x(y1-))+)\0";
-    logica_combinatorial(teste);
-    remove_parenteses_redundante(teste);
-    printf("%s\n", teste);
+    char teste1[TAM] = "[x][y](y1=)1(y(x(y1-))*)\0";
+    char teste2[TAM] = "[x][y]yx\0";
+    logica_combinatorial(teste1);
+    remove_parenteses_redundante(teste1);
+    logica_combinatorial(teste2);
+    remove_parenteses_redundante(teste2);
+    printf("%s\n", teste1);
+    printf("%s\n", teste2);
+
 }
+//ES(S(F<I2)I)(D(D+)(FBI(F-I2))(FBI(F-I1)))
+//
