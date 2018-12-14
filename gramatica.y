@@ -3,110 +3,103 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <string.h>
-typedef struct Iden{
+#include "backend.h"
+struct FuncaoUnaria{
 	char nome[256];
 	int valor;
-}Iden;
-Iden *atribuicoes;
-int max = 10;
-int qntAtribuicoes;
-void atribuir(char* s, int d);
-void buscarAtribuicao(char *s);
-int buscarValor(char *s);
-int calcula(char op, int a, int b);
+};
+
+struct FuncaoExpr{
+	char nome[256];
+	char expr[256];
+};
+
+struct FuncaoUnaria variaveis[256];
+struct FuncaoExpr funcoes[256];
+int qntVariaveis;
+int qntFuncoes;
+char* compilar(char *s);
+char* parentesear(char *s);
+char* compilar(char* entrada);
+char* salvar_numero(char *s);
+char* salvar_expr(char op, char *a, char *b);
 void yyerror(const char* s);
 int yylex(void);
 %}
 
+%nonassoc IFX
+%nonassoc ELSE
 %union{ char *str; int valor;}
 %start programa
-%token identificador
 %token numero
 %token operador
 %token atribuidor
+%token alphanumerico
+%token argumento
+%token logico
 %token ask
-%token print
-%type <str> identificador
-%type <str> print
+%token quebra_linha
+%token blank
+%type <str> alphanumerico
 %%
 
-programa	:	programa expr				{printf("%d\n", $<valor>2);}
-		|	programa identificador ask		{buscarAtribuicao($<str>2);}
-		|	programa identificador atribuidor expr 	{atribuir($<str>2, $<valor>4);}
+programa	:	programa expr quebra_linha	{compilar($<str>2);}
+		|	programa func			{;}
 		|	%empty	
 		;
-		;
-expr		:	operador expr expr 			{$<valor>$ = calcula($<valor>1, $<valor>2, $<valor>3);}
-		|	operador identificador expr		{if(buscarValor($<str>2) >= 0) {
-									$<valor>$ = calcula($<valor>1, buscarValor($<str>2), $<valor>3);
-								} else { 
-									yyerror("%s não existe", $<str>2);
-									operador;
-								}
-								}
-		| 	operador expr identificador		{if(buscarValor($<str>3) >= 0){
-									$<valor>$ = calcula($<valor>1, $<valor>2, buscarValor($<str>3));
-								} else {
-									yyerror("%s não existe", $<str>3);
-									operador;
-								}
-								}
-		|	operador identificador identificador	{if
-(buscarValor($<str>2) >= 0 && buscarValor($<str>3) >= 0){
-									$<valor>$ = calcula($<valor>1, buscarValor($<str>2), buscarValor($<str>3));
-								} else { 
-									yyerror("%s não existe", $<str>2);
-									operador;
-								}
-								}
-		|	numero					{$<valor>$ = $<valor>1;}
+
+expr		:	operador expr expr			{$<str>$ = salvar_expr($<valor>1, $<str>2,$<str>3);}
+		|	numero					{$<str>$ = salvar_numero($<str>1);}
 		;
 
+func		:	alphanumerico atribuidor expr			{;}
+		|	alphanumerico argumento atribuidor expr		{;}
+		| 	alphanumerico ask				{;}
+		;
 %%
 
-void buscarAtribuicao(char *s){
-	int i;
-	for(i = 0; i < qntAtribuicoes;i++){
-		if(!strcmp(s,atribuicoes[i].nome)){
-			printf("%s = %d\n", atribuicoes[i].nome, atribuicoes[i].valor);
-			return;		
+char* compilar(char* s){
+	printf("aaaaaaaaaaaaaaaaaaah");
+	free(s);
+}
+char* salvar_expr(char op, char *a, char *b){
+	int tam1 = strlen(a);
+	int tam2 = strlen(b);
+	char *aux = malloc(tam1+tam2+7);
+	aux[0] = op;
+	aux[1] = '(';
+	strcpy(aux+2, a);
+	aux[tam1+2] = ')';
+	aux[tam1+3] = '(';
+	strcat(aux, b);
+	aux[tam1+tam2+4] = ')';
+	aux[tam1+tam2+5] = '\0';
+	free(a);
+	free(b);
+	int i= 0, j = 0;
+	while(aux[j]){
+		if(aux[j] == ' '){
+			j++;
+		}else{
+			aux[i] = aux[j];
+			i++;
+			j++;
 		}
 	}
+	aux[i] = '\0';
+	return aux;
 }
-
-int buscarValor(char *s){
-	int i;
-	for(i = 0; i < qntAtribuicoes;i++){
-		if(!strcmp(s, atribuicoes[i].nome)){
-			return atribuicoes[i].valor;
-		}
-	}
-	return -1;
-}
-
-void atribuir(char *s, int d){
-		strcpy(atribuicoes[qntAtribuicoes].nome, s);
-		atribuicoes[qntAtribuicoes].valor = d;
-		qntAtribuicoes++;
-}
-
-int calcula(char op, int a, int b){
-	switch(op){
-		case '+':
-			return a+b;
-		case '-':
-			return a-b;
-		case '*':
-			return a*b;
-		case '/':
-			return a/b;
-	}
-	return 0;
+char* salvar_numero(char *s){
+	int tam = strlen(yylval.str);
+	char *aux = malloc(tam+1);
+	strcpy(aux, s);
+	aux[tam] = '\0';
+	return aux;
 }
 
 int main(void){
-	qntAtribuicoes = 0;
-	atribuicoes = malloc(max*sizeof(Iden));
+	qntVariaveis = 0;
+	qntFuncoes = 0;
 	return yyparse();
 }
 
