@@ -256,9 +256,10 @@ void cheney(){
 //char lista = "[3*8, 7*(5+2), aaa, (8/4)**(2+1), (8/4)**(2+1), bbb]";
 //char entrada[TAM_STRING] = "S(S(KS)(S(S(KS)(S(KK)(K+)))(KI)))(S(KK)I)76\0";
 //char entrada[TAM_STRING] = "B(CI)I9I\0";
-char entrada[TAM] = "Y(ES(S(F<I2)I)(D(D+)(FBI(F-I2))(FBI(F-I1))))20\0";
+//char entrada[TAM] = "Y(ES(S(F<I2)I)(D(D+)(FBI(F-I2))(FBI(F-I1))))20\0";
 //char entrada[TAM_STRING] = "ES(S(F<I2)I)(D(D+)(FBI(F-I2))(FBI(F-I1)))(Y(ES(S(F<I2)I)(D(D+)(FBI(F-I2))(FBI(F-I1)))))X\0";
 //char entrada[TAM_STRING] = "(S((S((BC)((C((BB)I))I)))((BC)((C((BB)I))I))))IIK";
+char entrada[TAM] = "D(E(F+))(F(E+)II)(F(E+)II)(3)(4)(5)\0";
 char *entr;
 
 int converter_char_int(char c){
@@ -314,7 +315,7 @@ int converter_char_int(char c){
         case ':':
             return -25;
         default:
-            return -1;
+            return c-48;
     }
 }
 
@@ -379,11 +380,13 @@ struct Celula* transforma_entrada_grafo(){
             raiz = nova;
             entr--;
             return raiz;
-        }else {
+        }else if(entr[0] != '\0' && entr[0] != ')'){
             struct Celula *nova = alocar_celula(-2);
             nova->esquerda = raiz;
             nova->direita = alocar_celula(converter_char_int(entr[0]));
             return nova;
+        }else{
+            return raiz;
         }
     }
 }
