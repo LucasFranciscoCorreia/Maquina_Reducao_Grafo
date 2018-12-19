@@ -489,6 +489,65 @@ void reduz_divisao(){
         push(raiz);
     }
 }
+void reduz_menor_que(){
+    struct Celula *a = (p-1)->cell;
+    struct Celula *b = (p-2)->cell;
+    struct Pilha *pai = p-3;
+    struct Celula *res;
+    a->direita = eval(a->direita);
+    if(a->direita->tipo == -2)
+        return;
+    b->direita = eval(b->direita);
+    if(b->direita->tipo == -2)
+        return;
+    a = a->direita;
+
+    b = b->direita;
+    p = pai;
+    if(a->tipo < b->tipo){
+        res = alocar_celula(~0-10);
+    }else{
+        res = alocar_celula(~0-11);
+    }
+    if(pai->cell){
+        pai->cell->esquerda = res;
+    }else{
+        p++;
+        p->cell = 0;
+        raiz = res;
+        push(raiz);
+    }
+}
+
+void reduz_maior_que(){
+    struct Celula *a = (p-1)->cell;
+    struct Celula *b = (p-2)->cell;
+    struct Pilha *pai = p-3;
+    struct Celula *res;
+    a->direita = eval(a->direita);
+    if(celulas <= 10)
+        return;
+    b->direita = eval(b->direita);
+    if(celulas <= 10)
+        return;
+    a = a->direita;
+    b = b->direita;
+    p = pai;
+    if(a->tipo > b->tipo){
+        res = alocar_celula(~0-10);
+    }else{
+        res = alocar_celula(~0-11);
+    }
+    if(pai->cell){
+        pai->cell->esquerda = res;
+    }else{
+        p++;
+        p->cell = 0;
+        raiz = res;
+        push(raiz);
+    }
+
+}
 
 struct Celula* eval(struct Celula *aux){
     struct Pilha *p2 = p++;
@@ -632,13 +691,13 @@ void execucao() {
 //                reduz_FALSE();
                 break;
             case -13:
-//                reduz_maior_que();
+                reduz_maior_que();
                 break;
             case -14:
 //                reduz_maior_igual_que();
                 break;
             case -15:
-//                reduz_menor_que();
+                reduz_menor_que();
                 break;
             case -16:
 //                reduz_menor_igual_que();
