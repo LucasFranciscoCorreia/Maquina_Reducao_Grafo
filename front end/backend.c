@@ -676,6 +676,7 @@ void execucao() {
         }
         if (p->cell)
             buscar_reduz(p->cell->esquerda);
+        i++;
     }
 }
 

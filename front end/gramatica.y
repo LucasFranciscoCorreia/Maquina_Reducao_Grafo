@@ -13,7 +13,7 @@ Funcao *funcoes;
 int i;
 
 char* compilar(char *s);
-void salvar_cond(char *op, char* expr1, char* expr2);
+void salvar_cond(char op, char* expr1, char* expr2);
 void salvar_op(char *op, char* then, char* Else);
 void salvarFuncaoVar(char *fun, char *expr);
 void salvarFuncaoExpr(char *fun, char *expr);
@@ -46,16 +46,16 @@ programa	:	programa expr quebra_linha				{compilar($<str>2);}
 		|	programa func quebra_linha				{;}
 		|	programa ifthenelse quebra_linha			{;}
 		|	programa condicao quebra_linha				{;}
-		|	%empty	
+		|	%empty
 		;
 
 op		:	logico							{$<str>$ = $<str>1;}
 		;
 
-condicao	:	op expr	expr						{salvar_cond($<str>1,$<str>2, $<str>3);}
+condicao	:	op expr	expr						{salvar_cond($<valor>1,$<str>2, $<str>3);}
 		;
 
-ifthenelse	:	IF condicao THEN expr ELSE expr				{salvar_op($<str>2, $<str>4, $<str>6);}    
+ifthenelse	:	IF condicao THEN expr ELSE expr				{salvar_op($<str>2, $<str>4, $<str>6);}
 		;
 
 expr		:	operador expr expr					{$<str>$ = salvar_expr($<valor>1, $<str>2,$<str>3);}
@@ -69,32 +69,47 @@ func		:	alphanumerico atribuidor expr				{salvarFuncaoVar($<str>1,$<str>3);}
 		;
 %%
 
-void salvar_cond(char* op, char* expr1, char* expr2){
+void salvar_cond(char op, char* expr1, char* expr2){
+    int tam1 = strlen(expr1);
+    int tam2 = strlen(expr2);
+    char* res = malloc(tam1+tam2+5);
+    res[0] = op;
+    res[1] = '(';
+    strcpy(res+2,expr1);
+    res[2+tam1] = ')';
+    res[3+tam1] = '(';
+    strcpy(res+tam1+4, expr2);
+    res[tam1+tam2+5] = ')';
+    printf("%s\n", res);
 	int res1, res2;
-	switch(*op){
+    printf("%s\n%s\n", expr1, expr2);
+	switch(op){
 		case '<':
 			res1 = iniciar(expr1);
 			res2 = iniciar(expr2);
+            printf("%d\n%d", res1, res2);
 			if(res1 < res2)
-				printf("TRUE");
+				printf("TRUE\n");
 			else
-				printf("FALSE");
+				printf("FALSE\n");
 			break;
 		case '>':
 			res1 = iniciar(expr1);
 			res2 = iniciar(expr2);
+            printf("%d\n%d", res1, res2);
 			if(res1 > res2)
-				printf("TRUE");
+				printf("TRUE\n");
 			else
-				printf("FALSE");
+				printf("FALSE\n");
 			break;
-		case '=':	
+		case '=':
 			res1 = iniciar(expr1);
 			res2 = iniciar(expr2);
+            printf("%d\n%d", res1, res2);
 			if(res1 == res2)
-				printf("TRUE");
+				printf("TRUE\n");
 			else
-				printf("FALSE");
+				printf("FALSE\n");
 			break;
 	}
 }
