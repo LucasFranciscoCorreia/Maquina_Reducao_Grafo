@@ -3,7 +3,7 @@
 #include <time.h>
 #include <math.h>
 
-#define TAM 2000
+#define TAM 230000000
 
 struct Celula{
     int tipo;
@@ -228,7 +228,7 @@ void mark_scan(){
 //Fib1
 // char entrada[TAM_STRING] = "S(K(SII))(S(S(KS)K)(K(SII)))(S(K(S(S(S(KI)(S(S(K<)I)(K2)))I)))(S(S(KS)(S(K(S(K+)))(S(S(KS)(S(KK)I))(K(S(S(K-)I)(K2))))))(S(S(KS)(S(KK)I))(K(S(S(K-)I)(K1))))))X\0";
 //Fib2
-//char entrada[TAM_STRING] = "S(K(SII))(S(S(KS)K)(K(SII)))(S(K(S(S(S(S(K<)I)(K2))I)))(S(S(KS)(S(K(S(K+)))(S(S(KS)(S(KK)I))(K(S(S(K-)I)(K2))))))(S(S(KS)(S(KK)I))(K(S(S(K-)I)(K1))))))X\0";
+char entrada[TAM] = "S(K(SII))(S(S(KS)K)(K(SII)))(S(K(S(S(S(S(K<)I)(K2))I)))(S(S(KS)(S(K(S(K+)))(S(S(KS)(S(KK)I))(K(S(S(K-)I)(K2))))))(S(S(KS)(S(KK)I))(K(S(S(K-)I)(K1))))))25\0";
 //char entrada[TAM_STRING] = "H(T(T(T((:1(:2(:3(:4(:5(:6[]))))))))))\0";
 //char entrada[TAM_STRING] = "M(S(K(SII))(S(S(KS)K)(K(SII)))(S(K(S(S(S(S(K<)I)(K2))I)))(S(S(KS)(S(K(S(K+)))(S(S(KS)(S(KK)I))(K(S(S(K-)I)(K2))))))(S(S(KS)(S(KK)I))(K(S(S(K-)I)(K1)))))))(:21(:22(:23(:24(:25(:26(:27(:28(:29(:30[]))))))))))\0";
 //char lista[TAM_STRING] = "(:0(:1(:2(:3(:4(:5(:6(:7(:8(:9[]))))))))))";
@@ -236,7 +236,7 @@ void mark_scan(){
 //char lista = "[3*8, 7*(5+2), aaa, (8/4)**(2+1), (8/4)**(2+1), bbb]";
 //char entrada[TAM_STRING] = "S(S(KS)(S(S(KS)(S(KK)(K+)))(KI)))(S(KK)I)76\0";
 //char entrada[TAM_STRING] = "B(CI)I9I\0";
-char entrada[TAM] = "Y(ES(S(F<I2)I)(D(D+)(FBI(F-I2))(FBI(F-I1))))30\0";
+//char entrada[TAM] = "Y(ES(S(F<I2)I)(D(D+)(FBI(F-I2))(FBI(F-I1))))30\0";
 //char entrada[TAM_STRING] = "ES(S(F<I2)I)(D(D+)(FBI(F-I2))(FBI(F-I1)))(Y(ES(S(F<I2)I)(D(D+)(FBI(F-I2))(FBI(F-I1)))))X\0";
 //char entrada[TAM_STRING] = "(S((S((BC)((C((BB)I))I)))((BC)((C((BB)I))I))))IIK";
 char *entr;

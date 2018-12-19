@@ -4,8 +4,6 @@
 #include <math.h>
 #include "backend.h"
 
-#define TAM 140000
-
 struct Celula{
     int tipo;
     struct Celula *direita, *esquerda;
@@ -22,7 +20,7 @@ struct Celula *hp;
 struct Celula *cp;
 struct Celula *raiz;
 struct Celula *S, *K, *I, *B, *C, *D, *E, *F, *TRUE, *FALSE, *GT, *GET, *LT, *LET, *EQ, *PLUS, *SUB, *MULT, *DIV, *Y, *HD, *TL, *MAP, *POW, *EMPTY_LIST;
-struct Pilha redex[TAM];
+struct Pilha redex[TAM/1000];
 struct Pilha *p;
 int celulas;
 int garbage_calls = 0;
@@ -181,6 +179,7 @@ struct Celula* copiar_celulas_cheney(){
         }else if(esq){
             aux = alocar_celula(esq->tipo);
             if(aux->tipo == -2) {
+
                 aux->esquerda = esq->esquerda;
                 aux->direita = esq->direita;
                 esq->tipo = -1;
@@ -241,7 +240,7 @@ void cheney(){
 //Fib1
 // char entrada[TAM_STRING] = "S(K(SII))(S(S(KS)K)(K(SII)))(S(K(S(S(S(KI)(S(S(K<)I)(K2)))I)))(S(S(KS)(S(K(S(K+)))(S(S(KS)(S(KK)I))(K(S(S(K-)I)(K2))))))(S(S(KS)(S(KK)I))(K(S(S(K-)I)(K1))))))X\0";
 //Fib2
-char entrada[TAM] = "S(K(SII))(S(S(KS)K)(K(SII)))(S(K(S(S(S(S(K<)I)(K2))I)))(S(S(KS)(S(K(S(K+)))(S(S(KS)(S(KK)I))(K(S(S(K-)I)(K2))))))(S(S(KS)(S(KK)I))(K(S(S(K-)I)(K1))))))10\0";
+//char entrada[TAM] = "S(K(SII))(S(S(KS)K)(K(SII)))(S(K(S(S(S(S(K<)I)(K2))I)))(S(S(KS)(S(K(S(K+)))(S(S(KS)(S(KK)I))(K(S(S(K-)I)(K2))))))(S(S(KS)(S(KK)I))(K(S(S(K-)I)(K1))))))10\0";
 //char entrada[TAM_STRING] = "H(T(T(T((:1(:2(:3(:4(:5(:6[]))))))))))\0";
 //char entrada[TAM_STRING] = "M(S(K(SII))(S(S(KS)K)(K(SII)))(S(K(S(S(S(S(K<)I)(K2))I)))(S(S(KS)(S(K(S(K+)))(S(S(KS)(S(KK)I))(K(S(S(K-)I)(K2))))))(S(S(KS)(S(KK)I))(K(S(S(K-)I)(K1)))))))(:21(:22(:23(:24(:25(:26(:27(:28(:29(:30[]))))))))))\0";
 //char lista[TAM_STRING] = "(:0(:1(:2(:3(:4(:5(:6(:7(:8(:9[]))))))))))";
@@ -297,6 +296,7 @@ int converter_char_int(char c){
             return -22;
         case 'H':
             return -23;
+
         case 'T':
             return -24;
         case '^':
@@ -917,6 +917,7 @@ void reduz_menor_que(){
     if(b->direita->tipo == -2)
         return;
     a = a->direita;
+
     b = b->direita;
     p = pai;
     if(a->tipo < b->tipo){
@@ -1408,17 +1409,18 @@ void execucao(){
     printf("Chamadas de Garbage Collection: %d\n", garbage_calls);
 }
 
-void iniciar(char* entrada){
-	entr = 	entrada;
+int iniciar(char* str){
+	entr = 	str;
 	alocar_memoria();
 	raiz = transforma_entrada_grafo();
 	execucao();
-	imprime_arvore(raiz);
+	int res = raiz->tipo;
 	free(heap);
+	return res;
 }
 
 void compilacao(){
-    entr = entrada;
+//    entr = entrada;
     alocar_memoria();
     raiz = transforma_entrada_grafo();
     double tempo = CLOCKS_PER_SEC;

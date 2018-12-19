@@ -3,24 +3,9 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <string.h>
-#include "backend.h"
-struct FuncaoUnaria{
-	char nome[256];
-	int valor;
-};
-
-struct FuncaoExpr{
-	char nome[256];
-	char expr[256];
-};
-
-struct FuncaoUnaria variaveis[256];
-struct FuncaoExpr funcoes[256];
 int qntVariaveis;
 int qntFuncoes;
 char* compilar(char *s);
-char* parentesear(char *s);
-char* compilar(char* entrada);
 char* salvar_numero(char *s);
 char* salvar_expr(char op, char *a, char *b);
 void yyerror(const char* s);
@@ -59,8 +44,10 @@ func		:	alphanumerico atribuidor expr			{;}
 %%
 
 char* compilar(char* s){
-	printf("aaaaaaaaaaaaaaaaaaah");
+	printf("%s\n", s);
+	//iniciar(s);
 	free(s);
+	return s;
 }
 char* salvar_expr(char op, char *a, char *b){
 	int tam1 = strlen(a);

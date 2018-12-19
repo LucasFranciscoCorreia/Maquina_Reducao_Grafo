@@ -1,5 +1,6 @@
-char* compilar(char* entrada);
-void iniciar(char* entrada);
-void alocar_memoria(void);
-struct Celula* transforma_entrada_grafo();
-void execucao(void);
+#ifndef REDUCAO_GRAFO
+#define REDUCAO_GRAFO
+	#define TAM 1000000
+	char* string = 0;
+	int iniciar(char *str);
+#endif
