@@ -6,13 +6,13 @@
 
 %%
 [0-9]+			{yylval.str = yytext;return numero;}
-[ \t]			{;}
+\n			{return quebra_linha;}
+[ \t\n]			{;}
 [-+/*]			{yylval.valor = yytext[0];return operador;}
 [<>]			{yylval.valor = yytext[0];return logico;}
 [=]			{return atribuidor;}
 "=="        		{yylval.valor = '=';return logico;}
 [?]			{return ask;}
-\n			{return quebra_linha;}
 "if"		        {return (IF);}
 "then"      		{return (THEN);}
 "else"      		{return (ELSE);}

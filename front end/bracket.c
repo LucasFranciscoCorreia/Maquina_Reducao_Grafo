@@ -80,7 +80,6 @@ void associatividade_esquerda(char *teste, int *beg) {
         fim+=2;
         teste[fim] = '\0';
         int i = fim-3, end = fim-1;
-
         for(;i >= c;i--){
             teste[end--] = teste[i];
         }
@@ -490,12 +489,81 @@ void remove_condicionais(char* str){
 	}
     str[i] = '\0';
 }
-
-void alpha_conversao(char *str, char*fun){
-
+char bate(char* fun, char *str){
+    int i;
+    for(i= 0; fun[i] != '\0';i++){
+        if(fun[i] != str[i])
+            return 0;
+    }
+    return 1;
 }
-void converter_para_bracket(char* fun, char *str){
-	remove_condicionais(str);
-    alpha_conversao(str, fun);
-	printf("%s\n", str);
+
+void alpha_conversao(char *fun, char* str){
+    int tam = strlen(fun);
+    int i, j;
+    for(i = 0; str[i] != '\0';i++){
+        if(bate(fun, str+i)){
+            j = i;
+            str[j++] = 'A';
+            for(; str[j+tam-1]!= '\0';j++){
+                str[j] = str[j+tam-1];
+            }
+            str[j] = '\0';
+        }
+    }
+}
+
+void apply_bracket(char* str){
+    int tam = strlen(str)+7;
+    int i;
+    str[tam-1] = '\0';
+    for(i = tam-2; i >= 6;i--){
+        str[i] = str[i-6];
+    }
+    int j;
+    for(j = i;j < tam ; j++){
+        if(str[j] >= 'a' && str[j] <= 'z'){
+            break;
+        }
+    }
+    char var = str[j];
+    str[0] = '[';
+    str[1] = 'A';
+    str[2] = ']';
+    str[3] = '[';
+    str[4] = var;
+    str[5] = ']';
+}
+char* converter_para_bracket(char* fun, char *str, char *valor){
+    char string[TAM];
+    strcpy(string, str);
+    remove_condicionais(string);
+    alpha_conversao(fun, string);
+    apply_bracket(string);
+    remove_parenteses_redundante(string);
+    logica_combinatorial(string);
+    remove_parenteses_redundante(string);
+    int tam = strlen(string);
+    int i;
+    for(i = tam+2;i >= 2;i--){
+        string[i] = string[i-2];
+    }
+    string[tam+3] = '\0';
+    string[0] = 'Y';
+    string[1] = '(';
+    tam = strlen(string);
+    string[tam++] = ')';
+    for(int i = 0; i < strlen(valor);i++){
+        if(valor[i] < '0' || valor[i] > '9'){
+            valor[i] = '\0';
+            break;
+        }
+
+    }
+    strcpy(string+tam,valor);
+    tam = strlen(string);
+    char* res = malloc(strlen(string)+1);
+    strcpy(res, string);
+    res[tam] = '\0';
+	return res;
 }
