@@ -10,14 +10,14 @@ struct Pilha{
     struct Celula *cell;
 };
 
-struct Celula *heap;
-struct Celula *heap2;
+struct Celula heap[TAM];
+struct Celula heap2[TAM];
 struct Celula *end_heap;
 struct Celula *hp;
 struct Celula *cp;
 struct Celula *raiz;
 struct Celula *S, *K, *I, *B, *C, *D, *E, *F, *TRUE, *FALSE, *GT, *GET, *LT, *LET, *EQ, *PLUS, *SUB, *MULT, *DIV, *Y, *HD, *TL, *MAP, *POW, *EMPTY_LIST;
-struct Pilha redex[TAM/1000];
+struct Pilha redex[TAM];
 struct Pilha *p;
 int celulas;
 int garbage_calls = 0;
@@ -193,9 +193,6 @@ void alocar_memoria(){
     EMPTY_LIST->tipo = -26;
     POW->tipo = -27;
     MAP->tipo = -28;
-
-    heap = (struct Celula*) malloc(TAM*sizeof(struct Celula));
-    heap2 = (struct Celula*) malloc(TAM*sizeof(struct Celula));
     end_heap = heap+TAM+1;
     hp = heap;
     raiz = NULL;
@@ -782,8 +779,8 @@ struct Celula* eval(struct Celula *aux){
     raiz = aux;
     buscar_reduz(aux);
     while(raiz->tipo == -2) {
-	//imprime_arvore(raiz);
-	//printf("\n");
+//	imprime_arvore(raiz);
+//	printf("\n");
         switch (p->cell->tipo) {
             case -4:
                 reduz_K();
@@ -956,6 +953,8 @@ void execucao() {
             p->cell = 0;
             buscar_reduz(raiz);
         }
+//        imprime_arvore(raiz);
+//        printf("\n");
         switch (p->cell->tipo) {
             case -4:
                 reduz_K();

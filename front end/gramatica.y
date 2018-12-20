@@ -4,7 +4,7 @@
 #include <ctype.h>
 #include <string.h>
 #include "backend.c"
- #include "bracket.c"
+#include "bracket.c"
 typedef struct{
 	char args;
 	char *expr;
@@ -129,12 +129,12 @@ char* eval_op1(char* op, char* then,char op2, char* alpha, char* expr1, char* ex
 	res[tam1+tam2+14] = '(';
 	res[tam1+tam2+15] = op2;
 	res[tam1+tam2+16] = '(';
-	res[tam1+tam2+17] = '(';
-	strcpy(res+tam1+tam2+18, alpha);
-	res[tam1+tam2+tam3+18] ='(';
-	strcpy(res+tam1+tam2+tam3+19, expr1);
+	strcpy(res+tam1+tam2+17, alpha);
+	res[tam1+tam2+tam3+17] ='(';
+	strcpy(res+tam1+tam2+tam3+18, expr1);
+	res[tam1+tam2+tam3+tam4+18] = ')';
 	res[tam1+tam2+tam3+tam4+19] = ')';
-	res[tam1+tam2+tam3+tam4+20] = ')';
+	res[tam1+tam2+tam3+tam4+20] = '(';
 	strcpy(res+tam1+tam2+tam3+tam4+21, expr2);
 	res[tam1+tam2+tam3+tam4+tam5+21] = ')';
 	res[tam1+tam2+tam3+tam4+tam5+22] = ')';
@@ -245,6 +245,7 @@ char* compilar(char* s){
 	free(s);
 	return s;
 }
+
 char* salvar_expr(char op, char *a, char *b){
 	int tam1 = strlen(a);
 	int tam2 = strlen(b);
