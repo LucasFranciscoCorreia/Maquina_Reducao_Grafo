@@ -3,8 +3,8 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <string.h>
-//#include "backend.c"
-#include "reducao_grafo_copia.c"
+#include "backend.c"
+//#include "reducao_grafo_copia.c"
 #include "bracket.c"
 typedef struct{
 	char args;

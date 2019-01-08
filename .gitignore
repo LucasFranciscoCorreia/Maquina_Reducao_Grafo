@@ -3,3 +3,5 @@ lex.yy.c
 y.tab.*
 CMakeLists.txt
 cmake-build-debug/*
+.idea/
+reducao_grafo_copia.*
