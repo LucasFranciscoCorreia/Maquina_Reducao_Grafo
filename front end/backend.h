@@ -1,2 +1,2 @@
-#define TAM 100000
+#define TAM 10000
 int iniciar(char* string);

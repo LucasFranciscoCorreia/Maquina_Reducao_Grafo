@@ -10,14 +10,14 @@ struct Pilha{
     struct Celula *cell;
 };
 
-struct Celula *heap;
-struct Celula *heap2;
+struct Celula heap[TAM];
+struct Celula heap2[TAM];
 struct Celula *end_heap;
 struct Celula *hp;
 struct Celula *cp;
 struct Celula *raiz;
 struct Celula *S, *K, *I, *B, *C, *D, *E, *F, *TRUE, *FALSE, *GT, *GET, *LT, *LET, *EQ, *PLUS, *SUB, *MULT, *DIV, *Y, *HD, *TL, *MAP, *POW, *EMPTY_LIST;
-struct Pilha redex[TAM/1000];
+struct Pilha redex[TAM];
 struct Pilha *p;
 int celulas;
 int garbage_calls = 0;
@@ -193,9 +193,6 @@ void alocar_memoria(){
     EMPTY_LIST->tipo = -26;
     POW->tipo = -27;
     MAP->tipo = -28;
-
-    heap = (struct Celula*) malloc(TAM*sizeof(struct Celula));
-    heap2 = (struct Celula*) malloc(TAM*sizeof(struct Celula));
     end_heap = heap+TAM+1;
     hp = heap;
     raiz = NULL;
@@ -549,6 +546,230 @@ void reduz_maior_que(){
 
 }
 
+void reduz_Y(){
+    struct Celula *a = (--p)->cell->direita;
+    struct Pilha *pai = (--p);
+    struct Celula *app = alocar_celula(-2);
+    app->esquerda = a;
+    app->direita = app;
+    if(pai->cell){
+        pai->cell->esquerda = app;
+    }else{
+        p++;
+        p->cell = 0;
+        raiz->esquerda = app;
+        push(raiz);
+    }
+}
+
+void reduz_K(){
+    struct Celula *a = (--p)->cell->direita;
+    p = p-2;
+    struct Pilha *pai = p;
+    if(pai->cell)
+        pai->cell->esquerda = a;
+    else {
+        p++;
+        p->cell = 0;
+        raiz = a;
+        push(raiz);
+    }
+}
+
+//Sabc = ac(bc)
+void reduz_S(){
+    struct Celula *a = (--p)->cell->direita;
+    struct Celula *b = (--p)->cell->direita;
+    struct Celula *c = (--p)->cell->direita;
+    struct Pilha *pai = --p;
+    struct Celula *app1, *app2, *app3;
+    app1 = alocar_celula(~0-1);
+    app2 = alocar_celula(~0-1);
+    app3 = alocar_celula(~0-1);
+    app1->esquerda = app2;
+    app2->esquerda = a;
+    app3->esquerda = b;
+    app1->direita = app3;
+    app2->direita = app3->direita = c;
+    if(pai->cell){
+        pai->cell->esquerda = app1;
+    }else{
+        p++;
+        p->cell = 0;
+        raiz = app1;
+        push(raiz);
+    }
+}
+
+//Ia = a
+void reduz_I(){
+    struct Celula *a = (--p)->cell->direita;
+    struct Pilha *pai = --p;
+    if(pai->cell){
+        p->cell->esquerda = a;
+    }else{
+        p++;
+        p->cell = 0;
+        raiz = a;
+        push(raiz);
+    }
+}
+
+//Babc = a(bc)
+void reduz_B(){
+    struct Celula *a = (--p)->cell->direita;
+    struct Celula *b = (--p)->cell->direita;
+    struct Celula *c = (--p)->cell->direita;
+    struct Pilha *pai = --p;
+    struct Celula *app1 = alocar_celula(~0-1);
+    struct Celula *app2 = alocar_celula(~0-1);
+    app1->esquerda = a;
+    app1->direita = app2;
+    app2->esquerda = b;
+    app2->direita = c;
+    if(pai->cell){
+        pai->cell->esquerda = app1;
+    }else{
+        p++;
+        p->cell = 0;
+        raiz = app1;
+        push(raiz);
+    }
+}
+
+//Cabc = acb
+void reduz_C(){
+    struct Celula *a = (--p)->cell->direita;
+    struct Celula *b = (--p)->cell->direita;
+    struct Celula *c = (--p)->cell->direita;
+    struct Pilha *pai = --p;
+    struct Celula *app1 = alocar_celula(~0-1);
+    struct Celula *app2 = alocar_celula(~0-1);
+    app1->esquerda = a;
+    app1->direita = c;
+    app2->esquerda = app1;
+    app2->direita = b;
+    if(pai->cell){
+        pai->cell->esquerda = app2;
+    }else{
+        p++;
+        p->cell = 0;
+        raiz = app2;
+        push(raiz);
+    }
+}
+
+//Dabcd = a(bd)(cd)
+void reduz_D(){
+    struct Celula *a = (--p)->cell->direita;
+    struct Celula *b = (--p)->cell->direita;
+    struct Celula *c = (--p)->cell->direita;
+    struct Celula *d = (--p)->cell->direita;
+    struct Pilha *pai = (--p);
+    struct Celula *app1 = alocar_celula(~0-1);
+    struct Celula *app2 = alocar_celula(~0-1);
+    struct Celula *app3 = alocar_celula(~0-1);
+    struct Celula *app4 = alocar_celula(~0-1);
+    app1->esquerda = a;
+    app1->direita = app2;
+    app2->esquerda = b;
+    app2->direita = d;
+    app3->esquerda = app1;
+    app3->direita = app4;
+    app4->esquerda = c;
+    app4->direita = d;
+    if(pai->cell){
+        pai->cell->esquerda = app3;
+    }else{
+        p++;
+        p->cell = 0;
+        raiz = app3;
+        push(raiz);
+    }
+}
+
+//Eabcd = ab(cd)
+void reduz_E(){
+    struct Celula *a = (--p)->cell->direita;
+    struct Celula *b = (--p)->cell->direita;
+    struct Celula *c = (--p)->cell->direita;
+    struct Celula *d = (--p)->cell->direita;
+    struct Pilha *pai = (--p);
+    struct Celula *app1 = alocar_celula(~0-1);
+    struct Celula *app2 = alocar_celula(~0-1);
+    struct Celula *app3 = alocar_celula(~0-1);
+    app1->esquerda = a;
+    app1->direita = b;
+    app2->esquerda = app1;
+    app2->direita = app3;
+    app3->esquerda = c;
+    app3->direita = d;
+    if(pai->cell){
+        pai->cell->esquerda = app2;
+    }else{
+        p++;
+        p->cell = 0;
+        raiz = app2;
+        push(raiz);
+    }
+}
+//Fabcd = a(bd)c
+void reduz_F(){
+    struct Celula *a = (--p)->cell->direita;
+    struct Celula *b = (--p)->cell->direita;
+    struct Celula *c = (--p)->cell->direita;
+    struct Celula *d = (--p)->cell->direita;
+    struct Pilha *pai = (--p);
+    struct Celula *app1 = alocar_celula(~0-1);
+    struct Celula *app2 = alocar_celula(~0-1);
+    struct Celula *app3 = alocar_celula(~0-1);
+    app1->esquerda = a;
+    app1->direita = app2;
+    app2->esquerda = b;
+    app2->direita = d;
+    app3->esquerda = app1;
+    app3->direita = c;
+
+    if(pai->cell){
+        pai->cell->esquerda = app3;
+    }else{
+        p++;
+        p->cell = 0;
+        raiz = app3;
+        push(raiz);
+    }
+}
+
+//Tab = a
+void reduz_TRUE(){
+    struct Celula *a = (--p)->cell->direita;
+    --p;
+    struct Pilha *pai = --p;
+    if(pai->cell)
+        pai->cell->esquerda = a;
+    else {
+        p++;
+        p->cell = 0;
+        raiz = a;
+        push(raiz);
+    }
+}
+
+//Fab = b;
+void reduz_FALSE(){
+    --p;
+    struct Celula *b = (--p)->cell->direita;
+    struct Pilha *pai = --p;
+    if(pai->cell){
+        pai->cell->esquerda = b;
+    }else{
+        p++;
+        p->cell = 0;
+        raiz = b;
+        push(raiz);
+    }
+}
+
 struct Celula* eval(struct Celula *aux){
     struct Pilha *p2 = p++;
     p->cell = 0;
@@ -558,47 +779,47 @@ struct Celula* eval(struct Celula *aux){
     raiz = aux;
     buscar_reduz(aux);
     while(raiz->tipo == -2) {
-	//imprime_arvore(raiz);
-	//printf("\n");
+//	imprime_arvore(raiz);
+//	printf("\n");
         switch (p->cell->tipo) {
             case -4:
-//                reduz_K();
+                reduz_K();
                 break;
             case -3:
-//                reduz_S();
+                reduz_S();
                 break;
             case -5:
-//                reduz_I();
+                reduz_I();
                 break;
             case -6:
-//                reduz_B();
+                reduz_B();
                 break;
             case -7:
-//                reduz_C();
+                reduz_C();
                 break;
             case -8:
-//                reduz_D();
+                reduz_D();
                 break;
             case -9:
-//                reduz_E();
+                reduz_E();
                 break;
             case -10:
-//                reduz_F();
+                reduz_F();
                 break;
             case -11:
-//                reduz_TRUE();
+                reduz_TRUE();
                 break;
             case -12:
-//                reduz_FALSE();
+                reduz_FALSE();
                 break;
             case -13:
-//                reduz_maior_que();
+                reduz_maior_que();
                 break;
             case -14:
 //                reduz_maior_igual_que();
                 break;
             case -15:
-//                reduz_menor_que();
+                reduz_menor_que();
                 break;
             case -16:
 //                reduz_menor_igual_que();
@@ -619,7 +840,7 @@ struct Celula* eval(struct Celula *aux){
                 reduz_divisao();
                 break;
             case -22:
-//                reduz_Y();
+                reduz_Y();
                 break;
             case -23:
 //                reduz_Hd();
@@ -647,6 +868,79 @@ struct Celula* eval(struct Celula *aux){
     raiz = raiz_aux;
     return aux;
 }
+void arrumar_hp_heap2(){
+    end_heap = heap2+TAM-1;
+    hp = heap2;
+}
+
+void arrumar_hp_heap1(){
+    end_heap = heap+TAM-1;
+    hp = heap;
+}
+
+struct Celula* copiar_celulas_cheney(){
+    struct Celula* res = alocar_celula(raiz->tipo);
+    res->esquerda = raiz->esquerda;
+    res->direita = raiz->direita;
+    raiz->esquerda = res;
+    raiz->direita = 0;
+    raiz->tipo = -1;
+    struct Celula *aux;
+    while(cp < hp) {
+        struct Celula *esq = cp->esquerda;
+        struct Celula *dir = cp->direita;
+        if(esq && esq->tipo == -1) {
+            cp->esquerda = esq->esquerda;
+        }else if(esq){
+            aux = alocar_celula(esq->tipo);
+            if(aux->tipo == -2) {
+
+                aux->esquerda = esq->esquerda;
+                aux->direita = esq->direita;
+                esq->tipo = -1;
+                esq->esquerda = aux;
+                esq->direita = 0;
+            }
+            cp->esquerda = aux;
+
+        }
+        if(dir && dir->tipo == -1){
+            cp->direita = dir->esquerda;
+        }else if(dir){
+            aux = alocar_celula(dir->tipo);
+            if(aux->tipo == -2) {
+                aux->esquerda = dir->esquerda;
+                aux->direita = dir->direita;
+                dir->tipo = -1;
+                dir->esquerda = aux;
+                dir->direita = 0;
+            }
+            cp->direita = aux;
+        }
+        cp++;
+
+    }
+
+    return res;
+}
+
+void cheney(){
+    static char choose_heap = 1;
+    if(choose_heap){
+        arrumar_hp_heap2();
+    }else{
+        arrumar_hp_heap1();
+    }
+    celulas = TAM;
+    choose_heap = !choose_heap;
+    cp = hp;
+    raiz = copiar_celulas_cheney();
+    garbage_calls++;
+    if(celulas <= 10){
+        printf("Memoria Insuficiente");
+        exit(0);
+    }
+}
 
 void execucao() {
     p = redex + 1;
@@ -654,41 +948,43 @@ void execucao() {
     int i = 0;
     while (raiz->tipo == -2) {
         if (celulas <= 10) {
-//            cheney();
+            cheney();
             p = redex + 1;
             p->cell = 0;
             buscar_reduz(raiz);
         }
+//        imprime_arvore(raiz);
+//        printf("\n");
         switch (p->cell->tipo) {
             case -4:
-//                reduz_K();
+                reduz_K();
                 break;
             case -3:
-//                reduz_S();
+                reduz_S();
                 break;
             case -5:
-//                reduz_I();
+                reduz_I();
                 break;
             case -6:
-//                reduz_B();
+                reduz_B();
                 break;
             case -7:
-//                reduz_C();
+                reduz_C();
                 break;
             case -8:
-//                reduz_D();
+                reduz_D();
                 break;
             case -9:
-//                reduz_E();
+                reduz_E();
                 break;
             case -10:
-//                reduz_F();
+                reduz_F();
                 break;
             case -11:
-//                reduz_TRUE();
+                reduz_TRUE();
                 break;
             case -12:
-//                reduz_FALSE();
+                reduz_FALSE();
                 break;
             case -13:
                 reduz_maior_que();
@@ -718,7 +1014,7 @@ void execucao() {
                 reduz_divisao();
                 break;
             case -22:
-//                reduz_Y();
+                reduz_Y();
                 break;
             case -23:
 //                reduz_Hd();

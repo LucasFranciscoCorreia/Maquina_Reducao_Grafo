@@ -1,6 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
-#define TAM 100000
+#define T 100000
 
 void casa_parenteses(char *teste, int *end) {
     int parem = 1;
@@ -46,8 +46,8 @@ void associatividade_esquerda(char *teste, int *beg) {
     a = ini;
     acha_argumento(teste, a, &nA);
     if(a != nA){
-        char aux[TAM];
-        char save[TAM];
+        char aux[T];
+        char save[T];
         char *vis = save;
         int i,j = 0;
         for(i =a+1; i < nA;i++){
@@ -80,7 +80,6 @@ void associatividade_esquerda(char *teste, int *beg) {
         fim+=2;
         teste[fim] = '\0';
         int i = fim-3, end = fim-1;
-
         for(;i >= c;i--){
             teste[end--] = teste[i];
         }
@@ -154,8 +153,8 @@ char tem(char *str, char busca){
 }
 
 void bracket_C(char *teste, int ini, int a, int nA, int c, int nC) {
-    char new_a[TAM];
-    char old_c[TAM];
+    char new_a[T];
+    char old_c[T];
     new_a[0] = '[';
     new_a[1] = teste[ini - 2];
     new_a[2] = ']';
@@ -186,8 +185,8 @@ void bracket_C(char *teste, int ini, int a, int nA, int c, int nC) {
 }
 
 void bracket_S(char *teste, int ini, int a, int nA, int c, int nC) {
-    char new_a[TAM];
-    char new_c[TAM];
+    char new_a[T];
+    char new_c[T];
     new_a[0] = new_c[0] = teste[ini - 3];
     new_a[1] = new_c[1] = teste[ini - 2];
     new_a[2] = new_c[2] = teste[ini - 1];
@@ -223,9 +222,9 @@ void bracket_S(char *teste, int ini, int a, int nA, int c, int nC) {
 }
 
 void bracket_D(char *teste, int ini, int a, int nA, int b, int nB, int c, int nC) {
-    char old_a[TAM];
-    char new_b[TAM];
-    char new_c[TAM];
+    char old_a[T];
+    char new_b[T];
+    char new_c[T];
     new_b[0] = new_c[0] = '[';
     new_b[1] = new_c[1] = teste[ini-2];
     new_b[2] = new_c[2] = ']';
@@ -267,8 +266,8 @@ void bracket_D(char *teste, int ini, int a, int nA, int b, int nB, int c, int nC
 }
 
 void bracket_B(char *teste, int ini, int a, int nA, int c, int nC) {
-    char new_c[TAM];
-    char old_a[TAM];
+    char new_c[T];
+    char old_a[T];
     new_c[0] = '[';
     new_c[1] = teste[ini - 2];
     new_c[2] = ']';
@@ -299,9 +298,9 @@ void bracket_B(char *teste, int ini, int a, int nA, int c, int nC) {
 }
 
 void bracket_F(char *teste, int ini, int a, int nA, int b, int nB, int c, int nC) {
-    char old_a[TAM];
-    char old_c[TAM];
-    char new_b[TAM];
+    char old_a[T];
+    char old_c[T];
+    char new_b[T];
     new_b[0] = '[';
     new_b[1] = teste[ini-2];
     new_b[2] = ']';
@@ -339,9 +338,9 @@ void bracket_F(char *teste, int ini, int a, int nA, int b, int nB, int c, int nC
 }
 
 void bracket_E(char *teste, int ini, int a, int nA, int b, int nB, int c, int nC) {
-    char old_a[TAM];
-    char old_b[TAM];
-    char new_c[TAM];
+    char old_a[T];
+    char old_b[T];
+    char new_c[T];
     new_c[0] = '[';
     new_c[1] = teste[ini-2];
     new_c[2] = ']';
@@ -490,12 +489,81 @@ void remove_condicionais(char* str){
 	}
     str[i] = '\0';
 }
-
-void alpha_conversao(char *str, char*fun){
-
+char bate(char* fun, char *str){
+    int i;
+    for(i= 0; fun[i] != '\0';i++){
+        if(fun[i] != str[i])
+            return 0;
+    }
+    return 1;
 }
-void converter_para_bracket(char* fun, char *str){
-	remove_condicionais(str);
-    alpha_conversao(str, fun);
-	printf("%s\n", str);
+
+void alpha_conversao(char *fun, char* str){
+    int tam = strlen(fun);
+    int i, j;
+    for(i = 0; str[i] != '\0';i++){
+        if(bate(fun, str+i)){
+            j = i;
+            str[j++] = 'A';
+            for(; str[j+tam-1]!= '\0';j++){
+                str[j] = str[j+tam-1];
+            }
+            str[j] = '\0';
+        }
+    }
+}
+
+void apply_bracket(char* str){
+    int tam = strlen(str)+7;
+    int i;
+    str[tam-1] = '\0';
+    for(i = tam-2; i >= 6;i--){
+        str[i] = str[i-6];
+    }
+    int j;
+    for(j = i;j < tam ; j++){
+        if(str[j] >= 'a' && str[j] <= 'z'){
+            break;
+        }
+    }
+    char var = str[j];
+    str[0] = '[';
+    str[1] = 'A';
+    str[2] = ']';
+    str[3] = '[';
+    str[4] = var;
+    str[5] = ']';
+}
+char* converter_para_bracket(char* fun, char *str, char *valor){
+    char string[T];
+    strcpy(string, str);
+    remove_condicionais(string);
+    alpha_conversao(fun, string);
+    apply_bracket(string);
+    remove_parenteses_redundante(string);
+    logica_combinatorial(string);
+    remove_parenteses_redundante(string);
+    int tam = strlen(string);
+    int i;
+    for(i = tam+2;i >= 2;i--){
+        string[i] = string[i-2];
+    }
+    string[tam+3] = '\0';
+    string[0] = 'Y';
+    string[1] = '(';
+    tam = strlen(string);
+    string[tam++] = ')';
+    for(int i = 0; i < strlen(valor);i++){
+        if(valor[i] < '0' || valor[i] > '9'){
+            valor[i] = '\0';
+            break;
+        }
+
+    }
+    strcpy(string+tam,valor);
+    tam = strlen(string);
+    char* res = malloc(strlen(string)+1);
+    strcpy(res, string);
+    res[tam] = '\0';
+	return res;
 }

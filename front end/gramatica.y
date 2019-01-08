@@ -14,7 +14,7 @@ Funcao *funcoes;
 int i;
 
 char* compilar(char *s);
-void avaliar_funcao(char* fun, int valor);
+void avaliar_funcao(char* fun, char* valor);
 char* eval_cond(char op, char* expr1, char* expr2);
 char* eval_op(char *op, char* then, char* Else);
 char* eval_op1(char* op, char* then,char op2, char* alpha, char* expr1, char* expr2);
@@ -53,7 +53,7 @@ int yylex(void);
 programa	:	programa expr quebra_linha				{compilar($<str>2);}
 		|	programa func quebra_linha				{;}
 		|	programa ifthenelse quebra_linha			{;}
-		| 	programa alphanumerico numero quebra_linha		{avaliar_funcao($<str>2, $<valor>3);}
+		| 	programa alphanumerico numero quebra_linha		{avaliar_funcao($<str>2, $<str>3);}
 		|	%empty
 		;
 
@@ -76,12 +76,14 @@ expr		:	operador expr expr					{$<str>$ = salvar_expr($<valor>1, $<str>2,$<str>3
 
 func		:	alphanumerico atribuidor expr				{salvarFuncaoVar($<str>1,$<str>3);}
 		|	alphanumerico argumento atribuidor ifthenelse		{salvarFuncaoExpr($<str>1, $<str>4);}
-		| 	alphanumerico ask					{printf("%s\n", $<str>1);buscarFuncao($<str>1);}
+		| 	alphanumerico ask					{buscarFuncao($<str>1);}
 		;
 %%
 
-void avaliar_funcao(char* fun, int valor){
-	converter_para_bracket(fun, buscarFuncao(fun));
+void avaliar_funcao(char* fun, char* valor){
+	char* res = converter_para_bracket(fun, buscarFuncao(fun), valor);
+	int a = iniciar(res);
+	printf("%d\n", a);
 }
 
 char* eval_cond(char op, char *expr1, char *expr2){
@@ -107,7 +109,7 @@ char* eval_op1(char* op, char* then,char op2, char* alpha, char* expr1, char* ex
 	int tam3 = strlen(alpha);
 	int tam4 = strlen(expr1);
 	int tam5 = strlen(expr2);
-	char* res = malloc(tam1+tam2+tam3+tam4+tam5+19);
+	char* res = malloc(tam1+tam2+tam3+tam4+tam5+23);
 	res[0] = 'i';
 	res[1] = 'f';
 	res[2] = '(';
@@ -126,12 +128,16 @@ char* eval_op1(char* op, char* then,char op2, char* alpha, char* expr1, char* ex
 	res[tam1+tam2+13] = 'e';
 	res[tam1+tam2+14] = '(';
 	res[tam1+tam2+15] = op2;
-	strcpy(res+tam1+tam2+16, alpha);
-	res[tam1+tam2+tam3+16] ='(';
-	strcpy(res+tam1+tam2+tam3+17, expr1);
-	res[tam1+tam2+tam3+tam4+17] = ')';
-	strcpy(res+tam1+tam2+tam3+tam4+18, expr2);
-	res[tam1+tam2+tam3+tam4+tam5+18] = ')';
+	res[tam1+tam2+16] = '(';
+	strcpy(res+tam1+tam2+17, alpha);
+	res[tam1+tam2+tam3+17] ='(';
+	strcpy(res+tam1+tam2+tam3+18, expr1);
+	res[tam1+tam2+tam3+tam4+18] = ')';
+	res[tam1+tam2+tam3+tam4+19] = ')';
+	res[tam1+tam2+tam3+tam4+20] = '(';
+	strcpy(res+tam1+tam2+tam3+tam4+21, expr2);
+	res[tam1+tam2+tam3+tam4+tam5+21] = ')';
+	res[tam1+tam2+tam3+tam4+tam5+22] = ')';
 	free(op);
 	free(then);
 	free(alpha);
@@ -147,7 +153,7 @@ char* eval_op2(char* op, char* then,char op2, char* alpha1, char* expr1, char* a
 	int tam4 = strlen(expr1);
 	int tam5 = strlen(alpha2);
 	int tam6 = strlen(expr2);
-	char* res = malloc(tam1+tam2+tam3+tam4+tam5+tam6+21);
+	char* res = malloc(tam1+tam2+tam3+tam4+tam5+tam6+26);
 	res[0] = 'i';
 	res[1] = 'f';
 	res[2] = '(';
@@ -166,15 +172,20 @@ char* eval_op2(char* op, char* then,char op2, char* alpha1, char* expr1, char* a
 	res[tam1+tam2+13]='e';
 	res[tam1+tam2+14]='(';
 	res[tam1+tam2+15] = op2;	
-	strcpy(res+tam1+tam2+16, alpha1);
-	res[tam1+tam2+tam3+16] = '(';
-	strcpy(res+tam1+tam2+tam3+17, expr1);
-	res[tam1+tam2+tam3+tam4+17] = ')';
-	strcpy(res+tam1+tam2+tam3+tam4+18, alpha2);
-	res[tam1+tam2+tam3+tam4+tam5+18] = '(';
-	strcpy(res+tam1+tam2+tam3+tam4+tam5+19, expr2);
-	res[tam1+tam2+tam3+tam4+tam5+tam6+19] = ')';
-	res[tam1+tam2+tam3+tam4+tam5+tam6+20] = ')';
+	res[tam1+tam2+16] = '(';
+	strcpy(res+tam1+tam2+17, alpha1);
+	res[tam1+tam2+tam3+17] = '(';
+	strcpy(res+tam1+tam2+tam3+18, expr1);
+	res[tam1+tam2+tam3+tam4+18] = ')';
+	res[tam1+tam2+tam3+tam4+19] = ')';
+	res[tam1+tam2+tam3+tam4+20] = '(';
+	strcpy(res+tam1+tam2+tam3+tam4+21, alpha2);
+	res[tam1+tam2+tam3+tam4+tam5+21] = '(';
+	strcpy(res+tam1+tam2+tam3+tam4+tam5+22, expr2);
+	res[tam1+tam2+tam3+tam4+tam5+tam6+22] = ')';
+	res[tam1+tam2+tam3+tam4+tam5+tam6+23] = ')';
+	res[tam1+tam2+tam3+tam4+tam5+tam6+24] = ')';
+	res[tam1+tam2+tam3+tam4+tam5+tam6+25] = '\0';
 	return res;
 }
 
@@ -209,7 +220,6 @@ char* buscarFuncao(char* fun){
 	int j;
 	for(j = 0; j < i;j++){
 		if(!strcmp(fun, funcoes[j].nome)){
-			printf("%s = %s\n", funcoes[j].nome, funcoes[j].expr);
 			return funcoes[j].expr;
 		}
 	}
@@ -235,6 +245,7 @@ char* compilar(char* s){
 	free(s);
 	return s;
 }
+
 char* salvar_expr(char op, char *a, char *b){
 	int tam1 = strlen(a);
 	int tam2 = strlen(b);
