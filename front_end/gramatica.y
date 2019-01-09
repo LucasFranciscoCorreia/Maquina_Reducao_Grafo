@@ -15,7 +15,7 @@ Funcao *funcoes;
 int i;
 
 char* compilar(char *s);
-void avaliar_funcao(char* fun, char *valor);
+char* avaliar_funcao(char* fun, char *valor);
 char* eval_cond(char op, char* expr1, char* expr2);
 char* eval_op(char *op, char* then, char* Else);
 char* eval_op1(char* op, char* then,char op2, char* alpha, char* expr1, char* expr2);
@@ -53,16 +53,31 @@ int yylex(void);
 
 %%
 
-programa	:	programa expr quebra_linha				                         {compilar($<str>2);}
-		|	programa func quebra_linha				                             {;}
-		|	programa ifthenelse quebra_linha			                         {;}
-		| 	programa alphanumerico numero quebra_linha		                     {avaliar_funcao($<str>2, $<str>3);}
-		|   programa operador expr alphanumerico  numero  quebra_linha           {aplicar_expressao_funcao($<valor>2,$<str>3,$<str>4,$<str>5);}
+programa	:	programa expr quebra_linha
+            {compilar($<str>2);}
+		|	programa func quebra_linha				                                      {;}
+		|	programa ifthenelse quebra_linha			                                  {;}
+		| 	programa alphanumerico numero quebra_linha
+		    {$<str>$ = avaliar_funcao($<str>2, $<str>3);printf("%s\n",$<str>$);}
+
+		|   programa operador expr alphanumerico  numero  quebra_linha
+		    {aplicar_expressao_funcao($<valor>2,$<str>3,$<str>4,$<str>5);}
+
+		|   programa operador alphanumerico  numero  alphanumerico  numero   quebra_linha
+		    {aplicar_operador_funcao_funcao($<valor>2,$<str>3,$<str>4,$<str>5,$<str>6);}
+
+		|   programa recursividadeFuncao  {printf("%s\n",$<str>1);}
+
 		|	%empty
 		;
 
 condicao	:	logico expr expr					{$<str>$ = eval_cond($<valor>1,$<str>2, $<str>3);}
-		;
+		    ;
+
+
+recursividadeFuncao  : alphanumerico recursividadeFuncao  {$<str>$ = avaliar_funcao($<str>1, $<str>2);}
+                     | alphanumerico numero quebra_linha  {$<str>$ = avaliar_funcao($<str>1, $<str>2);}
+
 
 ifthenelse	:	IF condicao THEN expr ELSE expr						{$<str>$ = eval_op($<str>2, $<str>4, $<str>6);}
 		|	IF condicao THEN expr ELSE operador alphanumerico AP expr FP expr	
@@ -84,11 +99,19 @@ func    :	alphanumerico atribuidor expr				                {salvarFuncaoVar($<st
 		;
 %%
 
-
-void avaliar_funcao(char* fun, char* valor){
+char * avaliar_funcao(char* fun, char* valor){
 	char* res = converter_para_bracket(fun, buscarFuncao(fun), valor);
 	int a = iniciar(res);
-	printf("%d\n", a);
+
+
+	int tam_string=1;
+
+	char *result_eval = calloc(20,sizeof(char));
+
+	snprintf(result_eval,20,"%d",a);
+
+	printf("%s\n", result_eval);
+	return result_eval;
 }
 
 char* eval_cond(char op, char *expr1, char *expr2){
@@ -128,6 +151,26 @@ void aplicar_expressao_funcao(char op,char *expr,char *fun,char *valor){
     strcat(str_eval,")");
     int resultado = iniciar(str_eval);
     printf("%d\n",resultado);
+}
+
+void aplicar_operador_funcao_funcao(char op, char *fun1,char *valor_fun1, char *fun2,char *valor_fun2){
+
+    char *expr_fun1 = buscarFuncao(fun1);
+    char *expr_fun2 = buscarFuncao(fun2);
+    char *bracket_fun1 = converter_para_bracket(fun1,expr_fun1, valor_fun1);
+    char *bracket_fun2 = converter_para_bracket(fun2,expr_fun2, valor_fun2);
+    char *expr_completa = malloc((strlen(bracket_fun1)+strlen(bracket_fun2)+7)*sizeof(char));
+    expr_completa[0] = op;
+    strcat(expr_completa,"(");
+    strcat(expr_completa,bracket_fun1);
+    strcat(expr_completa,")");
+    strcat(expr_completa,"(");
+    strcat(expr_completa,bracket_fun2);
+    strcat(expr_completa,")");
+
+    int resultado = iniciar(expr_completa);
+    printf("%d\n",resultado);
+
 }
 
 char* eval_op1(char* op, char* then,char op2, char* alpha, char* expr1, char* expr2){
@@ -311,7 +354,7 @@ char* salvar_numero(char *s){
 int main(void){
 	funcoes = malloc(100*sizeof(Funcao));
 	i = 0;
-	alocar_memoria();
+	//alocar_memoria();
 	return yyparse();
 }
 
