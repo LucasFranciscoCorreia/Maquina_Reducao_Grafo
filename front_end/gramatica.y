@@ -56,8 +56,6 @@ int yylex(void);
 programa	:	programa expr quebra_linha				                         {printf("%s\n", compilar($<str>2));}
 		|	programa func quebra_linha				                             {;}
 		|	programa ifthenelse quebra_linha                                     {;}
-		|   programa operador expr alphanumerico  numero  quebra_linha
-		    {aplicar_expressao_funcao($<valor>2,$<str>3,$<str>4,$<str>5);}
 		|	%empty
 		;
 
@@ -76,7 +74,7 @@ ifthenelse	:	IF condicao THEN expr ELSE expr						{$<str>$ = eval_op($<str>2, $<
 
 expr		:	operador expr expr                       {$<str>$ = salvar_expr($<valor>1, $<str>2,$<str>3);}
 		|	numero		                         {$<str>$ = salvar_numero($<str>1);}
-		| 	alphanumerico				 {;}
+		|	alphanumerico				{;}
 		|	alphanumerico AP expr FP                 {$<str>$ = avaliar_funcao($<str>1, compilar($<str>3));}
 		;
 
@@ -87,6 +85,7 @@ func    	:	alphanumerico atribuidor expr				                {salvarFuncaoVar($<s
 %%
 
 char * avaliar_funcao(char* fun, char* valor){
+   	 printf("%s\n", valor);
 	char* res = converter_para_bracket(fun, buscarFuncao(fun), valor);
 	int a = iniciar(res);
 
