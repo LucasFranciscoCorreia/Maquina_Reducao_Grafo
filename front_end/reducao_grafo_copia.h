@@ -1,0 +1,5 @@
+#ifndef REDUCAO_GRAFO_COPIA
+#define REDUCAO_GRAFO_COPIA
+
+
+#endif
