@@ -53,11 +53,9 @@ int yylex(void);
 
 %%
 
-programa	:	programa expr quebra_linha				                         {compilar($<str>2);}
+programa	:	programa expr quebra_linha				                         {printf("%s\n", compilar($<str>2));}
 		|	programa func quebra_linha				                             {;}
-		|	programa ifthenelse quebra_linha			                         {;}
-		| 	programa alphanumerico numero quebra_linha
-		    {$<str>$ = avaliar_funcao($<str>2, $<str>3);printf("%s\n",$<str>$);}
+		|	programa ifthenelse quebra_linha                                     {;}
 		|   programa operador expr alphanumerico  numero  quebra_linha
 		    {aplicar_expressao_funcao($<valor>2,$<str>3,$<str>4,$<str>5);}
 		|	%empty
@@ -76,14 +74,15 @@ ifthenelse	:	IF condicao THEN expr ELSE expr						{$<str>$ = eval_op($<str>2, $<
 			{$<str>$ = eval_op2($<str>2, $<str>4, $<valor>6, $<str>7, $<str>9, $<str>11, $<str>13);}
 		;
 
-expr	:	operador expr expr					                        {$<str>$ = salvar_expr($<valor>1, $<str>2,$<str>3);}
-		|	numero							                            {$<str>$ = salvar_numero($<str>1);}
-		|	alphanumerico					                            {$<str>$ = $<str>1;}
+expr		:	operador expr expr                       {$<str>$ = salvar_expr($<valor>1, $<str>2,$<str>3);}
+		|	numero		                         {$<str>$ = salvar_numero($<str>1);}
+		| 	alphanumerico				 {;}
+		|	alphanumerico AP expr FP                 {$<str>$ = avaliar_funcao($<str>1, compilar($<str>3));}
 		;
 
-func    :	alphanumerico atribuidor expr				                {salvarFuncaoVar($<str>1,$<str>3);}
+func    	:	alphanumerico atribuidor expr				                {salvarFuncaoVar($<str>1,$<str>3);}
 		|	alphanumerico AP alphanumerico FP atribuidor ifthenelse		{salvarFuncaoExpr($<str>1, $<str>6);}
-		| 	alphanumerico ask					                        {buscarFuncao($<str>1);}
+		| 	alphanumerico ask					                        {$<str>$ = buscarFuncao($<str>1);printf("%s", $<str>$);}
 		;
 %%
 
@@ -96,7 +95,7 @@ char * avaliar_funcao(char* fun, char* valor){
 
 	char *result_eval = calloc(20,sizeof(char));
 
-	snprintf(result_eval,20,"%d",a);
+	sprintf(result_eval,"%d",a);
 
 	//printf("%s\n", result_eval);
 	return result_eval;
@@ -277,11 +276,13 @@ void salvarFuncaoExpr(char* fun, char* expr){
 }
 
 char* compilar(char* s){
-	printf("%s\n", s);
 	int res = iniciar(s);
-	printf("%d\n", res);
+	char var[100];
+	sprintf(var, "%d", res);
+	char *resul = malloc(strlen(var)+1);
+	strcpy(resul, var);
 	free(s);
-	return s;
+	return resul;
 }
 
 char* salvar_expr(char op, char *a, char *b){

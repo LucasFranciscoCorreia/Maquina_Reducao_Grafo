@@ -335,16 +335,25 @@ struct Celula* transformar_entrada_grafo(){
         }else if(entr[0] == ')'){
             return raiz;
         }else if(entr[0] >= '0' && entr[0] <= '9') {
-            int res = 0;
-            while(entr[0] >= '0' && entr[0] <= '9' && entr[1] != '\0'){
-                res = res*10 + entr[0]-48;
-                entr++;
+            int res;
+            if(raiz->tipo > 0){
+                while(entr[0] >= '0' && entr[0] <= '9' && entr[1] != '\0'){
+                    raiz->tipo = raiz->tipo*10 + entr[0]-48;
+                    entr++;
+                }
+                entr--;
+            }else {
+                res = 0;
+                while (entr[0] >= '0' && entr[0] <= '9' && entr[1] != '\0') {
+                    res = res * 10 + entr[0] - 48;
+                    entr++;
+                }
+                struct Celula *nova = alocar_celula(-2);
+                nova->direita = alocar_celula(res);
+                nova->esquerda = raiz;
+                raiz = nova;
+                entr--;
             }
-            struct Celula *nova = alocar_celula(-2);
-            nova->direita = alocar_celula(res);
-            nova->esquerda = raiz;
-            raiz = nova;
-            entr--;
         }else{
             struct Celula *nova = alocar_celula(-2);
             nova->esquerda = raiz;
@@ -353,7 +362,10 @@ struct Celula* transformar_entrada_grafo(){
         }
         entr++;
     }
-    if(entr[0] >= '0' && entr[0] <= '9' && raiz->direita->tipo > 0){
+    if(entr[0] >= '0' && entr[0] <= '9' && raiz->direita == 0){
+        raiz->tipo = raiz->tipo*10 + entr[0]-48;
+    }
+    else if(entr[0] >= '0' && entr[0] <= '9' && raiz->direita->tipo > 0){
         raiz->direita->tipo = raiz->direita->tipo*10 + entr[0]-48;
         return raiz;
     }else {
