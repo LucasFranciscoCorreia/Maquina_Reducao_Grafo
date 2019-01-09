@@ -53,17 +53,24 @@ int yylex(void);
 
 %%
 
-programa	:	programa expr quebra_linha				                                  {compilar($<str>2);}
+programa	:	programa expr quebra_linha
+            {compilar($<str>2);}
 		|	programa func quebra_linha				                                      {;}
 		|	programa ifthenelse quebra_linha			                                  {;}
-		| 	programa alphanumerico numero quebra_linha		                              {avaliar_funcao($<str>2, $<str>3);}
-		|   programa operador expr alphanumerico  numero  quebra_linha                    {aplicar_expressao_funcao($<valor>2,$<str>3,$<str>4,$<str>5);}
-		|   programa operador alphanumerico  numero  alphanumerico  numero   quebra_linha {aplicar_operador_funcao_funcao($<valor>2,$<str>3,$<str>4,$<str>5,$<str>6);}
+		| 	programa alphanumerico numero quebra_linha
+		    {avaliar_funcao($<str>2, $<str>3);}
+
+		|   programa operador expr alphanumerico  numero  quebra_linha
+		    {aplicar_expressao_funcao($<valor>2,$<str>3,$<str>4,$<str>5);}
+
+		|   programa operador alphanumerico  numero  alphanumerico  numero   quebra_linha
+		    {aplicar_operador_funcao_funcao($<valor>2,$<str>3,$<str>4,$<str>5,$<str>6);}
+
 		|	%empty
 		;
 
 condicao	:	logico expr expr					{$<str>$ = eval_cond($<valor>1,$<str>2, $<str>3);}
-		;
+		    ;
 
 ifthenelse	:	IF condicao THEN expr ELSE expr						{$<str>$ = eval_op($<str>2, $<str>4, $<str>6);}
 		|	IF condicao THEN expr ELSE operador alphanumerico AP expr FP expr	
