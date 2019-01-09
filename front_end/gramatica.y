@@ -3,8 +3,8 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <string.h>
-//#include "backend.c"
-#include "reducao_grafo_copia.c"
+#include "backend.c"
+//#include "reducao_grafo_copia.c"
 #include "bracket.c"
 typedef struct{
 	char args;
@@ -26,7 +26,6 @@ void salvarFuncaoExpr(char *fun, char *expr);
 char* buscarFuncao(char *fun);
 char* salvar_numero(char *s);
 char* salvar_expr(char op, char *a, char *b);
-char* executar_expr(char *expr);//executa a expr salva no backend
 void aplicar_expressao_funcao(char op,char *expr,char *fun,char *valor);
 void aplicar_operador_funcao_funcao(char op, char *fun1,char *valor_fun1, char *fun2,char *valor_fun2);
 void yyerror(const char* s);
@@ -57,8 +56,10 @@ int yylex(void);
 programa	:	programa expr quebra_linha				                         {compilar($<str>2);}
 		|	programa func quebra_linha				                             {;}
 		|	programa ifthenelse quebra_linha			                         {;}
-		| 	programa alphanumerico numero quebra_linha		                     {avaliar_funcao($<str>2, $<str>3);}
-		|   programa operador expr alphanumerico  numero  quebra_linha           {aplicar_expressao_funcao($<valor>2,$<str>3,$<str>4,$<str>5);}
+		| 	programa alphanumerico numero quebra_linha
+		    {$<str>$ = avaliar_funcao($<str>2, $<str>3);printf("%s\n",$<str>$);}
+		|   programa operador expr alphanumerico  numero  quebra_linha
+		    {aplicar_expressao_funcao($<valor>2,$<str>3,$<str>4,$<str>5);}
 		|	%empty
 		;
 
@@ -311,15 +312,6 @@ char* salvar_expr(char op, char *a, char *b){
 	return aux;
 }
 
-char* executar_expr(char *expr){
-    int a = iniciar(expr);
-
-    char *result_eval = calloc(20,sizeof(char));
-
-    snprintf(result_eval,20,"%d",a);
-
-    return result_eval;
-}
 
 char* salvar_numero(char *s){
 	int tam = strlen(yylval.str);
