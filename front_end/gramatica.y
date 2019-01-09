@@ -68,6 +68,9 @@ programa	:	programa expr quebra_linha
         |   programa operadorFuncoes quebra_linha
             {printf("%s\n",$<str>2);}
 
+        |   programa recursividadeFuncoes quebra_linha
+            {printf("Recursividade Funcoes\n!");printf("%s\n",$<str>2);}
+
 		|	%empty
 		;
 
@@ -80,6 +83,14 @@ operadorFuncoes : operador operadorFuncoes operadorFuncoes
 
                 | alphanumerico numero
                   {$<str>$ = avaliar_funcao($<str>1, $<str>2);}
+
+recursividadeFuncoes: alphanumerico recursividadeFuncoes
+                      {$<str>$ = avaliar_funcao($<str>1, $<str>2);printf("%s\n",$<str>$);}
+
+                    | alphanumerico numero quebra_linha
+                      {$<str>$ = avaliar_funcao($<str>1, $<str>2);}
+
+
 
 ifthenelse	:	IF condicao THEN expr ELSE expr						{$<str>$ = eval_op($<str>2, $<str>4, $<str>6);}
 		|	IF condicao THEN expr ELSE operador alphanumerico AP expr FP expr	
