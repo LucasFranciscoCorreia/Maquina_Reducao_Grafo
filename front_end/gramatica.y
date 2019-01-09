@@ -3,8 +3,8 @@
 #include <stdlib.h>
 #include <ctype.h>
 #include <string.h>
-#include "backend.c"
-//#include "reducao_grafo_copia.c"
+//#include "backend.c"
+#include "reducao_grafo_copia.c"
 #include "bracket.c"
 typedef struct{
 	char args;
@@ -26,6 +26,7 @@ void salvarFuncaoExpr(char *fun, char *expr);
 char* buscarFuncao(char *fun);
 char* salvar_numero(char *s);
 char* salvar_expr(char op, char *a, char *b);
+char* executar_expr(char *expr);//executa a expr salva no backend
 void aplicar_expressao_funcao(char op,char *expr,char *fun,char *valor);
 void aplicar_operador_funcao_funcao(char op, char *fun1,char *valor_fun1, char *fun2,char *valor_fun2);
 void yyerror(const char* s);
@@ -63,10 +64,9 @@ programa	:	programa expr quebra_linha
 		|   programa operador expr alphanumerico  numero  quebra_linha
 		    {aplicar_expressao_funcao($<valor>2,$<str>3,$<str>4,$<str>5);}
 
-		|   programa operador alphanumerico  numero  alphanumerico  numero   quebra_linha
-		    {aplicar_operador_funcao_funcao($<valor>2,$<str>3,$<str>4,$<str>5,$<str>6);}
 
-		|   programa recursividadeFuncao  {printf("%s\n",$<str>1);}
+        |   programa operadorFuncoes quebra_linha
+            {printf("%s\n",$<str>2);}
 
 		|	%empty
 		;
@@ -74,10 +74,12 @@ programa	:	programa expr quebra_linha
 condicao	:	logico expr expr					{$<str>$ = eval_cond($<valor>1,$<str>2, $<str>3);}
 		    ;
 
+operadorFuncoes : operador operadorFuncoes operadorFuncoes
+                  {$<str>$ = salvar_expr($<valor>1, $<str>2, $<str>3);
+                   $<str>$  = executar_expr($<str>$);}
 
-recursividadeFuncao  : alphanumerico recursividadeFuncao  {$<str>$ = avaliar_funcao($<str>1, $<str>2);}
-                     | alphanumerico numero quebra_linha  {$<str>$ = avaliar_funcao($<str>1, $<str>2);}
-
+                | alphanumerico numero
+                  {$<str>$ = avaliar_funcao($<str>1, $<str>2);}
 
 ifthenelse	:	IF condicao THEN expr ELSE expr						{$<str>$ = eval_op($<str>2, $<str>4, $<str>6);}
 		|	IF condicao THEN expr ELSE operador alphanumerico AP expr FP expr	
@@ -110,7 +112,7 @@ char * avaliar_funcao(char* fun, char* valor){
 
 	snprintf(result_eval,20,"%d",a);
 
-	printf("%s\n", result_eval);
+	//printf("%s\n", result_eval);
 	return result_eval;
 }
 
@@ -343,6 +345,17 @@ char* salvar_expr(char op, char *a, char *b){
 	aux[i] = '\0';
 	return aux;
 }
+
+char* executar_expr(char *expr){
+    int a = iniciar(expr);
+
+    char *result_eval = calloc(20,sizeof(char));
+
+    snprintf(result_eval,20,"%d",a);
+
+    return result_eval;
+}
+
 char* salvar_numero(char *s){
 	int tam = strlen(yylval.str);
 	char *aux = malloc(tam+1);
