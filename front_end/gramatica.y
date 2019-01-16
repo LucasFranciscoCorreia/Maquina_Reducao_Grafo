@@ -45,8 +45,8 @@ int yylex(void);
 %token ask
 %token quebra_linha
 %token equals
-%token IF 
-%token THEN 
+%token IF
+%token THEN
 %token ELSE
 %token AP FP
 %type <str> alphanumerico
@@ -66,11 +66,11 @@ condicao	:	logico expr expr					{$<str>$ = eval_cond($<valor>1,$<str>2, $<str>3)
 
 
 ifthenelse	:	IF condicao THEN expr ELSE expr						{$<str>$ = eval_op($<str>2, $<str>4, $<str>6);}
-		|	IF condicao THEN expr ELSE operador alphanumerico AP expr FP expr	
+		|	IF condicao THEN expr ELSE operador alphanumerico AP expr FP expr
 			{$<str>$ = eval_op1($<str>2, $<str>4, $<valor>6, $<str>7, $<str>9,$<str>11);}
-		|	IF condicao THEN expr ELSE operador expr alphanumerico AP expr FP	
+		|	IF condicao THEN expr ELSE operador expr alphanumerico AP expr FP
 			{$<str>$ = eval_op1($<str>2, $<str>4, $<valor>6, $<str>8, $<str>10,$<str>7);}
-		| 	IF condicao THEN expr ELSE operador alphanumerico AP expr FP alphanumerico AP expr FP 
+		| 	IF condicao THEN expr ELSE operador alphanumerico AP expr FP alphanumerico AP expr FP
 			{$<str>$ = eval_op2($<str>2, $<str>4, $<valor>6, $<str>7, $<str>9, $<str>11, $<str>13);}
 		;
 

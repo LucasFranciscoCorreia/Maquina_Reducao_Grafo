@@ -325,7 +325,7 @@ struct Celula* alocar_celula(int tipo){
 struct Celula* transformar_entrada_grafo(){
     struct Celula *raiz = alocar_celula(converter_char_int(entr[0]));
     entr++;
-    while(entr[1]){
+    while( entr[0] && entr[1]){
         if(entr[0] == '('){
             struct Celula *nova = alocar_celula(-2);
             nova->esquerda = raiz;
@@ -874,7 +874,7 @@ struct Celula* eval(struct Celula *aux){
             buscar_reduz(p->cell->esquerda);
     }
     //imprime_arvore(raiz);
-	//printf("\n");
+    //printf("\n");
     p = p2;
     aux = raiz;
     raiz = raiz_aux;
@@ -1055,9 +1055,9 @@ void limpar_redex(){
 }
 
 int iniciar(char* entrada){
-	entr = entrada;
-	raiz = transformar_entrada_grafo();
-	execucao();
+    entr = entrada;
+    raiz = transformar_entrada_grafo();
+    execucao();
     limpar_redex();
-	return raiz->tipo;
+    return raiz->tipo;
 }

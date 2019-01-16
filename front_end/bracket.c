@@ -378,6 +378,18 @@ void bracket_E(char *teste, int ini, int a, int nA, int b, int nB, int c, int nC
     teste[j] = '\0';
 }
 
+void bracket_K(char* teste){
+    teste[0] = 'K';
+    teste[1] = '(';
+    int tam = strlen(teste);
+    int i;
+    for(i = 2;i+1 < tam;i++){
+        teste[i] = teste[i+1];
+    }
+    teste[i++] = ')';
+    teste[i] = '\0';
+}
+
 void logica_combinatorial(char *teste) {
     while(tem(teste, '[')) {
         int ini;
@@ -444,8 +456,7 @@ void logica_combinatorial(char *teste) {
                     bracket_E(teste, ini,a, nA, b, nB, c, nC);
                 }
             }else{
-                printf("Erro");
-                exit(1);
+                bracket_K(teste);
             }
         }
     }
@@ -459,6 +470,24 @@ void remove_parenteses_redundante(char *teste) {
         if(teste[j] == '(' && teste[j+2] == ')'){
             teste[i] = teste[j+1];
             j+=2;
+        }
+        i++;
+        j++;
+    }
+    teste[i] = '\0';
+    i = 0;
+    j = 0;
+    while(teste[j] != '\0'){
+        teste[i] = teste[j];
+        if(teste[j] == '(' && teste[j+1] == '('){
+            int aux = -1;
+            acha_argumento(teste, ++j, &aux);
+            while(j <= aux-1){
+                teste[i+1] = teste[j+1];
+                i++;
+                j++;
+            }
+            i--;
         }
         i++;
         j++;
@@ -555,11 +584,20 @@ char* converter_para_bracket(char* fun, char *str, char *valor){
     tam = strlen(string);
     string[tam++] = ')';
     for(int i = 0; i < strlen(valor);i++){
+        if(valor[i] == '-'){
+            if(valor[i] < '0' || valor[i] > '9'){
+                valor[i] = '0';
+                valor[i+1] = '\0';
+                break;
+            }else{
+                valor = '\0';
+                break;
+            }
+        }
         if(valor[i] < '0' || valor[i] > '9'){
             valor[i] = '\0';
             break;
         }
-
     }
     strcpy(string+tam,valor);
     tam = strlen(string);
@@ -568,3 +606,4 @@ char* converter_para_bracket(char* fun, char *str, char *valor){
     res[tam] = '\0';
 	return res;
 }
+
