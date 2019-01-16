@@ -81,7 +81,8 @@ expr		:	operador expr expr                       {$<str>$ = salvar_expr($<valor>
 		;
 
 func    	:	alphanumerico atribuidor expr				                {salvarFuncaoVar($<str>1,$<str>3);}
-		|	alphanumerico AP alphanumerico FP atribuidor ifthenelse		{salvarFuncaoExpr($<str>1, $<str>6);}
+		|	alphanumerico AP alphanumerico FP atribuidor ifthenelse			{salvarFuncaoExpr($<str>1, $<str>6);}
+		|	alphanumerico AP alphanumerico FP atribuidor expr			{salvarFuncaoExpr($<str>1, $<str>6);}
 		| 	alphanumerico ask					                        {$<str>$ = buscarFuncao($<str>1);printf("%s", $<str>$);}
 		;
 %%
