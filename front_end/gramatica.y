@@ -4,7 +4,6 @@
 #include <ctype.h>
 #include <string.h>
 #include "backend.c"
-//#include "reducao_grafo_copia.c"
 #include "bracket.c"
 typedef struct{
 	char args;
@@ -53,8 +52,8 @@ int yylex(void);
 
 %%
 
-programa	:	programa expr quebra_linha				                         {printf("%s\n", compilar($<str>2));}
-		|	programa func quebra_linha				                             {;}
+programa	:	programa expr quebra_linha				             {printf("%s\n", compilar($<str>2));}
+		|	programa func quebra_linha				             {;}
 		|	programa ifthenelse quebra_linha                                     {;}
 		|   programa operador expr alphanumerico  numero  quebra_linha
 		    {aplicar_expressao_funcao($<valor>2,$<str>3,$<str>4,$<str>5);}
@@ -119,7 +118,7 @@ char* eval_cond(char op, char *expr1, char *expr2){
 
 
 void aplicar_expressao_funcao(char op,char *expr,char *fun,char *valor){
-
+    printf("Appicar expressao funcao\n expr:%s \n func: %s, valor: %s",expr,fun,valor);
     int tam_op = 1;
     int tam_expr = strlen(expr);
     int tam_valor = strlen(valor);
@@ -276,6 +275,7 @@ void salvarFuncaoExpr(char* fun, char* expr){
 }
 
 char* compilar(char* s){
+	printf("Função compilar\n expr: %s",s);
 	int res = iniciar(s);
 	char var[100];
 	sprintf(var, "%d", res);

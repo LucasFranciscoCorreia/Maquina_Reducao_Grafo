@@ -1,5 +1,6 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #define T 100000
 
 void casa_parenteses(char *teste, int *end) {
