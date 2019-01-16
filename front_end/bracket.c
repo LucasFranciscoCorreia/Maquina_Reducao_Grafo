@@ -481,13 +481,20 @@ void remove_parenteses_redundante(char *teste) {
         teste[i] = teste[j];
         if(teste[j] == '(' && teste[j+1] == '('){
             int aux = -1;
-            acha_argumento(teste, ++j, &aux);
-            while(j <= aux-1){
-                teste[i+1] = teste[j+1];
-                i++;
-                j++;
+            int k = i;
+            int x = j;
+            acha_argumento(teste, ++x, &aux);
+            while(x <= aux-1){
+                teste[k+1] = teste[x+1];
+                k++;
+                x++;
             }
+            x++;
+            while(teste[x])
+                teste[k++] = teste[x++];
+            teste[k] = '\0';
             i--;
+            j--;
         }
         i++;
         j++;
