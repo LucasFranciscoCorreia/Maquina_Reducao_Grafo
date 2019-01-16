@@ -25,6 +25,7 @@ void salvarFuncaoExpr(char *fun, char *expr);
 char* buscarFuncao(char *fun);
 char* salvar_numero(char *s);
 char* salvar_expr(char op, char *a, char *b);
+char* novo_salvar_expr(char op, char *a, char *b);
 void aplicar_expressao_funcao(char op,char *expr,char *fun,char *valor);
 void aplicar_operador_funcao_funcao(char op, char *fun1,char *valor_fun1, char *fun2,char *valor_fun2);
 void yyerror(const char* s);
@@ -86,16 +87,17 @@ func    	:	alphanumerico atribuidor expr				                {salvarFuncaoVar($<s
 %%
 
 char * avaliar_funcao(char* fun, char* valor){
+
+	//printf("\n Aplicando funcao: %s\n ao valor: %s \n",fun,valor);
+
 	char* res = converter_para_bracket(fun, buscarFuncao(fun), valor);
 	int a = iniciar(res);
-
 
 	int tam_string=1;
 
 	char *result_eval = calloc(20,sizeof(char));
 
 	sprintf(result_eval,"%d",a);
-
 	//printf("%s\n", result_eval);
 	return result_eval;
 }
@@ -275,7 +277,7 @@ void salvarFuncaoExpr(char* fun, char* expr){
 }
 
 char* compilar(char* s){
-	printf("Função compilar\n expr: %s",s);
+	//printf("\nFunção compilar\n expr: %s\n",s);
 	int res = iniciar(s);
 	char var[100];
 	sprintf(var, "%d", res);
@@ -286,15 +288,17 @@ char* compilar(char* s){
 }
 
 char* salvar_expr(char op, char *a, char *b){
+	//printf("\n(Antiga)Salvando expr:\n op: %c \n arg1:%s \n arg2:%s\n",op,a,b);
 	int tam1 = strlen(a);
 	int tam2 = strlen(b);
-	char *aux = malloc(tam1+tam2+7);
+	char *aux = calloc(tam1+tam2+7,sizeof(char));
 	aux[0] = op;
 	aux[1] = '(';
 	strcpy(aux+2, a);
 	aux[tam1+2] = ')';
 	aux[tam1+3] = '(';
 	strcat(aux, b);
+	//printf("\nExpr nao finalizada: %s\n",aux);
 	aux[tam1+tam2+4] = ')';
 	aux[tam1+tam2+5] = '\0';
 	free(a);
@@ -310,9 +314,40 @@ char* salvar_expr(char op, char *a, char *b){
 		}
 	}
 	aux[i] = '\0';
+	//printf("\nExpr retornada: %s\n",aux);
 	return aux;
 }
 
+char* novo_salvar_expr(char op, char *a, char *b){
+	printf("\n(NOVO)Salvando expr:\n op: %c \n arg1:%s \n arg2:%s\n",op,a,b);
+	int tam1 = strlen(a);
+	int tam2 = strlen(b);
+	char *aux = calloc(tam1+tam2+7,sizeof(char));
+	aux[0] = op;
+	strcat(aux,"(");
+	strcat(aux,a);
+	strcat(aux,")");
+	strcat(aux,"(");
+	strcat(aux, b);
+	printf("\nExpr nao finalizada: %s\n",aux);
+	strcat(aux,")");
+	strcat(aux,"\0");//aux[tam1+tam2+5] = '\0';
+	free(a);
+	free(b);
+	int i= 0, j = 0;
+	while(aux[j]){
+		if(aux[j] == ' '){
+			j++;
+		}else{
+			aux[i] = aux[j];
+			i++;
+			j++;
+		}
+	}
+	aux[i] = '\0';
+	printf("\nExpr retornada: %s\n",aux);
+	return aux;
+}
 
 char* salvar_numero(char *s){
 	int tam = strlen(yylval.str);
