@@ -625,7 +625,12 @@ void apply_bracket(char* str){
     str[5] = ']';
 }
 
-
+/*Procedimento pega o identificador da funcao
+ * char *fun, a string com a expressao retornada no front-end, char *str
+ * e o valor a ser aplicado a funcao char *valor
+ * e transforma a funcao definida no front-end em
+ * logica combinatorial para ser executada no backend
+ */
 char* converter_para_bracket(char* fun, char *str, char *valor){
     char string[T];
     strcpy(string, str);

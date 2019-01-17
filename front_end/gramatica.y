@@ -98,6 +98,7 @@ char * avaliar_funcao(char* fun, char* valor){
 
 	//Função é convertida para logica combinatorial
 	char* res = converter_para_bracket(fun, buscarFuncao(fun), valor);
+	//funcao convertida em logica combinatorial e executada no backend
 	int a = iniciar(res);
 
 	int tam_string=1;
