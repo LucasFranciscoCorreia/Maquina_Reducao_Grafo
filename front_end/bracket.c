@@ -3,6 +3,10 @@
 #include <string.h>
 #define T 100000
 
+//Procedimento que recebe duas variaveis, uma que aponta para
+//um array e outra que aponta para um inteiro com a posiao do
+//array a ser usada. O procedimento termina quando atinge a
+//primeira posiao depois dos parenteses.
 void casa_parenteses(char *teste, int *end) {
     int parem = 1;
     (*end)++;
@@ -17,6 +21,9 @@ void casa_parenteses(char *teste, int *end) {
     (*end)--;
 }
 
+/*procedimento efetua busca de agrumento
+ * do [x].
+ * */
 void acha_argumento(char *teste, int a, int *p) {
     if(teste[a] == '\0'){
         *p = -1;
@@ -30,6 +37,8 @@ void acha_argumento(char *teste, int a, int *p) {
     }
 }
 
+//Aplica a associatividade a esquerda a uma string
+//incluindo parênteses a mesma
 void associatividade_esquerda(char *teste, int *beg) {
     int fim = 0;
     while(teste[++fim] != '\0');
@@ -100,6 +109,10 @@ void associatividade_esquerda(char *teste, int *beg) {
     *beg = ini;
 }
 
+/* procedimento verifica se a string "char *teste"
+ * contem um caractere especifico "char i"
+ * dentro de um intervalo especifico
+ * */
 char contains(char *teste, char i, int i1, int i2) {
     char res = 0;
     for(;i1 <= i2;i1++){
@@ -110,6 +123,10 @@ char contains(char *teste, char i, int i1, int i2) {
 }
 void logica_combinatorial(char *teste);
 
+/* Verifica se a string sendo transformada
+ * está no formato [x]a, caso contrário
+ * a mesa é corrigida
+ * */
 void avaliar(char* str){
     int fim = 0;
     while(str[++fim] != '\0');
@@ -143,6 +160,9 @@ void avaliar(char* str){
 
 }
 
+/*procedimento verifica se a string "char *teste"
+ * contem um caractere especifico "char busca"
+ * */
 char tem(char *str, char busca){
     int i = 0;
     char res = 0;
@@ -153,6 +173,7 @@ char tem(char *str, char busca){
     return res;
 }
 
+//[x]xw = C ([x]x)w
 void bracket_C(char *teste, int ini, int a, int nA, int c, int nC) {
     char new_a[T];
     char old_c[T];
@@ -185,6 +206,7 @@ void bracket_C(char *teste, int ini, int a, int nA, int c, int nC) {
     teste[i] = '\0';
 }
 
+//[x](xy)(xw) = S([x](xy))([x](xw))
 void bracket_S(char *teste, int ini, int a, int nA, int c, int nC) {
     char new_a[T];
     char new_c[T];
@@ -222,6 +244,7 @@ void bracket_S(char *teste, int ini, int a, int nA, int c, int nC) {
     teste[i] = '\0';
 }
 
+//[x]wyx = Dwy([x]x)
 void bracket_D(char *teste, int ini, int a, int nA, int b, int nB, int c, int nC) {
     char old_a[T];
     char new_b[T];
@@ -266,6 +289,7 @@ void bracket_D(char *teste, int ini, int a, int nA, int b, int nB, int c, int nC
 
 }
 
+//[x]wx = B w([x]x)
 void bracket_B(char *teste, int ini, int a, int nA, int c, int nC) {
     char new_c[T];
     char old_a[T];
@@ -298,6 +322,7 @@ void bracket_B(char *teste, int ini, int a, int nA, int c, int nC) {
     teste[i++] = '\0';
 }
 
+//[x]wxx = Fw([x]x)([x]x)
 void bracket_F(char *teste, int ini, int a, int nA, int b, int nB, int c, int nC) {
     char old_a[T];
     char old_c[T];
@@ -338,6 +363,7 @@ void bracket_F(char *teste, int ini, int a, int nA, int b, int nB, int c, int nC
     teste[j] = '\0';
 }
 
+//[x]wxy = E w([x]x)y
 void bracket_E(char *teste, int ini, int a, int nA, int b, int nB, int c, int nC) {
     char old_a[T];
     char old_b[T];
@@ -378,6 +404,7 @@ void bracket_E(char *teste, int ini, int a, int nA, int b, int nB, int c, int nC
     teste[j] = '\0';
 }
 
+//[x]y = Ky
 void bracket_K(char* teste){
     teste[0] = 'K';
     teste[1] = '(';
@@ -390,6 +417,9 @@ void bracket_K(char* teste){
     teste[i] = '\0';
 }
 
+/*Execucao da transformacao da string em logica como
+ * logica combinatorial
+ * */
 void logica_combinatorial(char *teste) {
     while(tem(teste, '[')) {
         int ini;
@@ -462,6 +492,12 @@ void logica_combinatorial(char *teste) {
     }
 }
 
+/*Procedimento remove parenteses redundantes da string sendo
+ * verificada. Um parentese eh considerado
+ * redundante se o mesmo envolver apenas um carctere
+ * ou se na string houver abre parenteses seguidos ((
+ * onde os fecha parenteses também sao considerados redundantes
+ */
 void remove_parenteses_redundante(char *teste) {
     int i = 0;
     int j = 0;
@@ -502,6 +538,9 @@ void remove_parenteses_redundante(char *teste) {
     teste[i] = '\0';
 }
 
+/*Procedimeto remove da string a ser transformada em logica
+ * combinatorial, as strings "if", "then" e "else"
+ * */
 void remove_condicionais(char* str){
     int i,j;
 	for(i = 0; str[i] != '\0';i++){
@@ -526,6 +565,10 @@ void remove_condicionais(char* str){
 	}
     str[i] = '\0';
 }
+
+/*Funcao, verifica a igualdade entre duas strings
+ * char *fun e char *str
+ * */
 char bate(char* fun, char *str){
     int i;
     for(i= 0; fun[i] != '\0';i++){
@@ -534,6 +577,12 @@ char bate(char* fun, char *str){
     }
     return 1;
 }
+
+/*
+* Procedimento efetua alpha conversao da string retornada
+* pelo frontend. Onde char *fun e o identificador da
+* funcao.
+*/
 
 void alpha_conversao(char *fun, char* str){
     int tam = strlen(fun);
@@ -550,6 +599,10 @@ void alpha_conversao(char *fun, char* str){
     }
 }
 
+/* Adiciona Brackets para o identificador da funcao
+ * e para o argumento, de modo que a string da expressao
+ * possa ser transformada em lógica combinatorial
+ * */
 void apply_bracket(char* str){
     int tam = strlen(str)+7;
     int i;
@@ -571,6 +624,8 @@ void apply_bracket(char* str){
     str[4] = var;
     str[5] = ']';
 }
+
+
 char* converter_para_bracket(char* fun, char *str, char *valor){
     char string[T];
     strcpy(string, str);
