@@ -16,14 +16,16 @@ struct Celula *end_heap;
 struct Celula *hp;
 struct Celula *cp;
 struct Celula *raiz;
+//Declarando ponteiros globais para operadores e combinadores
 struct Celula *S, *K, *I, *B, *C, *D, *E, *F, *TRUE, *FALSE, *GT, *GET, *LT, *LET, *EQ, *PLUS, *SUB, *MULT, *DIV, *Y, *HD, *TL, *MAP, *POW, *EMPTY_LIST;
 struct Pilha redex[TAM];
 struct Pilha *p;
 int celulas;
 int garbage_calls = 0;
-
+//ponteiro para string de entrada
 char* entr;
 
+//Imprime o grafo na string
 void imprime_arvore(struct Celula* no){
     static int deph = 0;
     static int lista = 0;
@@ -141,6 +143,9 @@ void imprime_arvore(struct Celula* no){
         lista = 0;
 }
 
+/*Procedimetn efetua alocação de espaco de memória a ser referenciado para
+ * ponteiros globais com seus combinadores ou operadores correspondentes
+ * */
 void alocar_memoria(){
     S = calloc(1, sizeof(struct Celula));
     K = calloc(1, sizeof(struct Celula));
@@ -198,6 +203,10 @@ void alocar_memoria(){
     raiz = NULL;
     celulas = TAM;
 }
+
+/*Recebe o caractere de um combinador ou operador e retorna
+ * o tipo correspondente
+*/
 int converter_char_int(char c){
     switch (c){
         case '@':
@@ -256,6 +265,10 @@ int converter_char_int(char c){
     }
 }
 
+/*Pega o tipo da célula e retorna a referencia correspondente
+ * caso o tipo seja um combinador ou operador declarado o qual
+ * foi declarado previamente de forma fixa
+ * */
 struct Celula* alocar_celula(int tipo){
     if(hp > end_heap){
         printf("sem memoria");
@@ -321,7 +334,10 @@ struct Celula* alocar_celula(int tipo){
     }
 }
 
-
+/*Procedimento tranforma a string de entrada de lógica combinatorial
+ * para grafo, onde ha uma chamada recursiva cada vez que o caractere avaliado
+ * for "(" , criando a uma subarvore
+ * */
 struct Celula* transformar_entrada_grafo(){
     struct Celula *raiz = alocar_celula(converter_char_int(entr[0]));
     entr++;
@@ -397,6 +413,9 @@ void push(struct Celula *elem){
     }
 }
 
+/*Busca a celula mais externa mais a exquerda
+ * no grafo para a mesma ser avaliada e reduzida
+ */
 void buscar_reduz(struct Celula *grafo){
     while(grafo){
         push(grafo);
@@ -404,9 +423,10 @@ void buscar_reduz(struct Celula *grafo){
     }
 }
 
+//Declacarcao da funcao eval
 struct Celula* eval(struct Celula *aux);
 
-
+//+ab = eval(a) + eval(b)
 void reduz_soma(){
     struct Celula *a = (p-1)->cell;
     struct Celula *b = (p-2)->cell;
@@ -430,6 +450,7 @@ void reduz_soma(){
     }
 }
 
+//-ab = eval(a) - eval(b)
 void reduz_subtracao(){
     struct Celula *a = (p-1)->cell;
     struct Celula *b = (p-2)->cell;
@@ -453,6 +474,7 @@ void reduz_subtracao(){
     }
 }
 
+//* ab = eval (a) * eval(b)
 void reduz_multiplicacao(){
     struct Celula *a = (p-1)->cell;
     struct Celula *b = (p-2)->cell;
@@ -476,6 +498,7 @@ void reduz_multiplicacao(){
     }
 }
 
+// /ab = eval (a) / eval(b)
 void reduz_divisao(){
     struct Celula *a = (p-1)->cell;
     struct Celula *b = (p-2)->cell;
@@ -498,6 +521,8 @@ void reduz_divisao(){
         push(raiz);
     }
 }
+
+// < ab = eval (a) < eval(b)
 void reduz_menor_que(){
     struct Celula *a = (p-1)->cell;
     struct Celula *b = (p-2)->cell;
@@ -528,6 +553,7 @@ void reduz_menor_que(){
     }
 }
 
+// > ab = eval (a) > eval(b)
 void reduz_maior_que(){
     struct Celula *a = (p-1)->cell;
     struct Celula *b = (p-2)->cell;
@@ -558,6 +584,7 @@ void reduz_maior_que(){
 
 }
 
+//Ya = a Ya
 void reduz_Y(){
     struct Celula *a = (--p)->cell->direita;
     struct Pilha *pai = (--p);
@@ -574,6 +601,8 @@ void reduz_Y(){
     }
 }
 
+
+//Kab = a
 void reduz_K(){
     struct Celula *a = (--p)->cell->direita;
     p = p-2;
@@ -782,6 +811,8 @@ void reduz_FALSE(){
     }
 }
 
+/*Procedimento criado para avaliacao e reducao de subarvore
+ * */
 struct Celula* eval(struct Celula *aux){
     struct Pilha *p2 = p++;
     p->cell = 0;
@@ -880,6 +911,8 @@ struct Celula* eval(struct Celula *aux){
     raiz = raiz_aux;
     return aux;
 }
+
+
 void arrumar_hp_heap2(){
     end_heap = heap2+TAM-1;
     hp = heap2;
@@ -890,6 +923,9 @@ void arrumar_hp_heap1(){
     hp = heap;
 }
 
+/*Aplicando a copia do garbage collection chenney.
+ * utilizando o filho a esquerda como forward pointer
+ * */
 struct Celula* copiar_celulas_cheney(){
     struct Celula* res = alocar_celula(raiz->tipo);
     res->esquerda = raiz->esquerda;
@@ -936,6 +972,7 @@ struct Celula* copiar_celulas_cheney(){
     return res;
 }
 
+//Aplicacao o algoritmo GC de cheney
 void cheney(){
     static char choose_heap = 1;
     if(choose_heap){
@@ -954,6 +991,7 @@ void cheney(){
     }
 }
 
+//Efetua as reducoes
 void execucao() {
     p = redex + 1;
     buscar_reduz(raiz);
@@ -1047,6 +1085,8 @@ void execucao() {
     }
 }
 
+//Procedimento efetua uma limpeza na pilha.
+//atribunido 0 a cada elemento ate o TAM/1000
 void limpar_redex(){
     int i;
     for(i = 0; i < TAM/1000;i++){
@@ -1054,6 +1094,9 @@ void limpar_redex(){
     }
 }
 
+/*Procedimento recebe a string transformada em
+ * logica combinatoria e a executa no backend
+ * */
 int iniciar(char* entrada){
     entr = entrada;
     raiz = transformar_entrada_grafo();
