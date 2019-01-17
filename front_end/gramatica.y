@@ -84,10 +84,19 @@ func    	:	alphanumerico atribuidor expr				                {salvarFuncaoVar($<s
 		;
 %%
 
+
+/*
+  Procedumento utilizado para avaliar a fução transformada em lógica combinatorial.
+  Argumentos:
+  	char *fun : string contendo a função em associatividade a esquerda, com termos separados em parênteses
+  		    if(<termo lógico>)then(<termo para o then>)else(<termo else>) Caso a função tenha if then else
+  		    os tokens "if then else" são removidos e a fução é retornada em lógica
+  		    combinatorial
+  	char *valor: valor a ser aplicado a função
+*/
 char * avaliar_funcao(char* fun, char* valor){
 
-	//printf("\n Aplicando funcao: %s\n ao valor: %s \n",fun,valor);
-
+	//Função é convertida para logica combinatorial
 	char* res = converter_para_bracket(fun, buscarFuncao(fun), valor);
 	int a = iniciar(res);
 
@@ -96,10 +105,16 @@ char * avaliar_funcao(char* fun, char* valor){
 	char *result_eval = calloc(20,sizeof(char));
 
 	sprintf(result_eval,"%d",a);
-	//printf("%s\n", result_eval);
 	return result_eval;
 }
 
+/*Procedimento pega uma expressao condicional transforma-a numa
+string com associatividade a esquerda e a retorna.
+Argumentos:
+ 	char op: operador codicional.
+ 	char *expr1: expressao do argumento 1. Já com associatividade a esquerda
+ 	char *expr2: expressao no argumento 2. Já com associatividade a esquerda
+*/
 char* eval_cond(char op, char *expr1, char *expr2){
     int tam1 = strlen(expr1);
     int tam2 = strlen(expr2);
@@ -116,6 +131,18 @@ char* eval_cond(char op, char *expr1, char *expr2){
     return eval;
 }
 
+/*Procedimento utilizado na clausula if then else
+para construir a string if then else a ser transformada
+em logica combinatorial.
+A string "if then else" e retornada
+Argumentos:
+	char *op: expressao logica
+	char *then: expressao para caso o  termo then precise ser executado.
+	char *op2: operador aritemtico a ser avaliado.
+	char *alpha: identificador da funcao.
+	char *expr1: expressão a ser passada como argumento
+	char *expr2: outra expressao a ser utilizado
+*/
 char* eval_op1(char* op, char* then,char op2, char* alpha, char* expr1, char* expr2){
 	int tam1 = strlen(op);
 	int tam2 = strlen(then);
@@ -159,6 +186,19 @@ char* eval_op1(char* op, char* then,char op2, char* alpha, char* expr1, char* ex
 	return res;
 }
 
+/*Procedimento utilizado na clausula if then else
+para construir a string if then else a ser transformada
+em logica combinatorial.
+A string "if then else" e retornada
+Argumentos:
+	char *op: expressao logica
+	char *then: expressao para caso o  termo then precise ser executado.
+	char *op2: operador aritemtico a ser avaliado.
+	char *alpha1: identificador da funcao.
+	char *expr1: expressao a ser passada como argumento do identificador 1
+	char *alpha2: identificador da funcao.
+	char *expr2: expressao a ser passada como argumento do identificador 2
+*/
 char* eval_op2(char* op, char* then,char op2, char* alpha1, char* expr1, char* alpha2, char* expr2){
 	int tam1 = strlen(op);
 	int tam2 = strlen(then);
@@ -202,6 +242,15 @@ char* eval_op2(char* op, char* then,char op2, char* alpha1, char* expr1, char* a
 	return res;
 }
 
+/*Procedimento utilizado na clausula if then else
+para construir a string if then else a ser transformada
+em logica combinatorial.
+A string "if then else" e retornada
+Argumentos:
+	char *op: expressao logica
+	char *then: expressao para caso o  termo then precise ser executado.
+	char *Else: expressao para caso o  termo Else precise ser executado.
+*/
 char* eval_op(char* op, char *then, char* Else){
 	int tam1 = strlen(op);
 	int tam2 = strlen(then);
@@ -229,6 +278,12 @@ char* eval_op(char* op, char *then, char* Else){
 	return res;
 }
 
+/*Procedimento efetua uma busca no array de estrutura
+funcoes, baseado num alphanumerico(identificador da funcao) digitado pelo
+usuario. E retorna a expressao correspondente ao identificador da funcao
+Argumentos:
+	char *fun : identificador da fucao
+*/
 char* buscarFuncao(char* fun){
 	int j;
 	for(j = 0; j < i;j++){
@@ -237,6 +292,13 @@ char* buscarFuncao(char* fun){
 		}
 	}
 }
+
+/*Procedimento salva a expressao da funcao junto com o seu identificador
+e expressao correspondente no array de estruturas.
+Argumentos:
+	char *fun: Identificador da funcao,
+	char *expr: expressao correspondente ao identifi
+*/
 void salvarFuncaoVar(char* fun, char* expr){
 	funcoes[i].nome = fun;
 	funcoes[i].expr = expr;
@@ -244,6 +306,13 @@ void salvarFuncaoVar(char* fun, char* expr){
 	i++;
 }
 
+/*Procedimento salva uma expressao de uma funcao
+transformada em associatividade a esquerda bem
+como a expressao
+Argumentos:
+	char *fun: string da fucao
+	char *expr: string da expressao
+*/
 void salvarFuncaoExpr(char* fun, char* expr){
 	funcoes[i].nome = fun;
 	funcoes[i].expr = expr;
@@ -262,8 +331,14 @@ char* compilar(char* s){
 	return resul;
 }
 
+/*Procedimento em que expressão aritmetica e salva em com
+associatividade a esquerda, para ser avaliada pelo back end
+Argumentos:
+	char op : operador aritmetico,
+	char *a : primeiro argumento do operador
+	char *b : segundo argumento do operador
+*/
 char* salvar_expr(char op, char *a, char *b){
-	//printf("\n(Antiga)Salvando expr:\n op: %c \n arg1:%s \n arg2:%s\n",op,a,b);
 	int tam1 = strlen(a);
 	int tam2 = strlen(b);
 	char *aux = calloc(tam1+tam2+7,sizeof(char));
@@ -273,7 +348,7 @@ char* salvar_expr(char op, char *a, char *b){
 	aux[tam1+2] = ')';
 	aux[tam1+3] = '(';
 	strcat(aux, b);
-	//printf("\nExpr nao finalizada: %s\n",aux);
+
 	aux[tam1+tam2+4] = ')';
 	aux[tam1+tam2+5] = '\0';
 	free(a);
@@ -289,10 +364,13 @@ char* salvar_expr(char op, char *a, char *b){
 		}
 	}
 	aux[i] = '\0';
-	//printf("\nExpr retornada: %s\n",aux);
+
 	return aux;
 }
 
+
+/*Procedimento pega o token numero e o copia  para uma variável axiliar e retorna-o
+*/
 char* salvar_numero(char *s){
 	int tam = strlen(yylval.str);
 	char *aux = malloc(tam+1);
