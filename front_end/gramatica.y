@@ -26,8 +26,7 @@ char* buscarFuncao(char *fun);
 char* salvar_numero(char *s);
 char* salvar_expr(char op, char *a, char *b);
 char* novo_salvar_expr(char op, char *a, char *b);
-void aplicar_expressao_funcao(char op,char *expr,char *fun,char *valor);
-void aplicar_operador_funcao_funcao(char op, char *fun1,char *valor_fun1, char *fun2,char *valor_fun2);
+
 void yyerror(const char* s);
 int yylex(void);
 %}
@@ -56,8 +55,6 @@ int yylex(void);
 programa	:	programa expr quebra_linha				             {printf("%s\n", compilar($<str>2));}
 		|	programa func quebra_linha				             {;}
 		|	programa ifthenelse quebra_linha                                     {;}
-		|   programa operador expr alphanumerico  numero  quebra_linha
-		    {aplicar_expressao_funcao($<valor>2,$<str>3,$<str>4,$<str>5);}
 		|	%empty
 		;
 
@@ -117,29 +114,6 @@ char* eval_cond(char op, char *expr1, char *expr2){
     free(expr1);
     free(expr2);
     return eval;
-}
-
-
-void aplicar_expressao_funcao(char op,char *expr,char *fun,char *valor){
-    printf("Appicar expressao funcao\n expr:%s \n func: %s, valor: %s",expr,fun,valor);
-    int tam_op = 1;
-    int tam_expr = strlen(expr);
-    int tam_valor = strlen(valor);
-    char *expr_fun = buscarFuncao(fun);
-    char* bracket_fun = converter_para_bracket(fun,expr_fun, valor);
-    int tam_bracket_fun = strlen(bracket_fun);
-    char *str_eval = malloc((tam_op+tam_expr+tam_bracket_fun+tam_valor+4)*sizeof(char));
-    //Avaliando expressoes
-    int offset = 0;
-    str_eval[offset++]=op;
-    str_eval[offset++]='(';
-    strcat(str_eval,expr);
-    strcat(str_eval,")");
-    strcat(str_eval,"(");
-    strcat(str_eval,bracket_fun);
-    strcat(str_eval,")");
-    int resultado = iniciar(str_eval);
-    printf("%d\n",resultado);
 }
 
 char* eval_op1(char* op, char* then,char op2, char* alpha, char* expr1, char* expr2){
@@ -316,37 +290,6 @@ char* salvar_expr(char op, char *a, char *b){
 	}
 	aux[i] = '\0';
 	//printf("\nExpr retornada: %s\n",aux);
-	return aux;
-}
-
-char* novo_salvar_expr(char op, char *a, char *b){
-	printf("\n(NOVO)Salvando expr:\n op: %c \n arg1:%s \n arg2:%s\n",op,a,b);
-	int tam1 = strlen(a);
-	int tam2 = strlen(b);
-	char *aux = calloc(tam1+tam2+7,sizeof(char));
-	aux[0] = op;
-	strcat(aux,"(");
-	strcat(aux,a);
-	strcat(aux,")");
-	strcat(aux,"(");
-	strcat(aux, b);
-	printf("\nExpr nao finalizada: %s\n",aux);
-	strcat(aux,")");
-	strcat(aux,"\0");//aux[tam1+tam2+5] = '\0';
-	free(a);
-	free(b);
-	int i= 0, j = 0;
-	while(aux[j]){
-		if(aux[j] == ' '){
-			j++;
-		}else{
-			aux[i] = aux[j];
-			i++;
-			j++;
-		}
-	}
-	aux[i] = '\0';
-	printf("\nExpr retornada: %s\n",aux);
 	return aux;
 }
 
